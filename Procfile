@@ -1,1 +1,1 @@
-web: gunicorn komektes_project.wsgi --log-file -
+web: python manage.py migrate && gunicorn komektes_project.wsgi --log-file -
