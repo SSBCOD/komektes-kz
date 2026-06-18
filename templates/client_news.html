@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_lang %}
+
+{% block title %}{% t "Жаңалықтар" "Новости" %} — Komektes.kz{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- ELEGANT TYPOGRAPHY & DESIGN FOR NEWS --- */
+    .section-head {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .page-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 36px;
+        color: #0f172a;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+    }
+    
+    .page-lead {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto 30px;
+        line-height: 1.6;
+    }
+
+    /* Beautiful Page Search Bar */
+    .news-search-container {
+        max-width: 500px;
+        margin: 0 auto 40px;
+    }
+    
+    .news-search-bar {
+        display: flex;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 50px;
+        padding: 6px 6px 6px 20px;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+        transition: all 0.25s ease;
+        align-items: center;
+    }
+    
+    .news-search-bar:focus-within {
+        border-color: #14b8a6;
+        box-shadow: 0 10px 25px rgba(20, 184, 166, 0.08);
+    }
+    
+    .news-search-bar input {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #0f172a;
+        background: transparent;
+    }
+    
+    .news-search-bar button {
+        background: var(--brand-gradient, linear-gradient(90deg, #22c55e, #14b8a6));
+        color: #ffffff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .news-search-bar button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2);
+    }
+
+    /* News Grid Layout */
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 28px;
+        margin-top: 20px;
+    }
+
+    .news-card2 {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .news-card2:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.07);
+        border-color: rgba(20, 184, 166, 0.3);
+    }
+
+    .news-media {
+        position: relative;
+        height: 230px;
+        background-size: cover;
+        background-position: center;
+        background-color: #f1f5f9;
+        overflow: hidden;
+        transition: background-size 0.4s ease;
+    }
+
+    .news-media::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0) 50%, rgba(15, 23, 42, 0.35) 100%);
+    }
+
+    .news-card2:hover .news-media {
+        background-size: 105%;
+    }
+
+    .news-body {
+        padding: 26px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        text-align: left;
+    }
+
+    .news-meta2 {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #14b8a6;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .news-meta2 i {
+        font-size: 13px;
+    }
+
+    .news-title2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.4;
+        color: #0f172a;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        transition: color 0.2s ease;
+        letter-spacing: -0.01em;
+    }
+
+    .news-card2:hover .news-title2 {
+        color: #14b8a6;
+    }
+
+    .news-text2 {
+        font-family: 'Poppins', sans-serif;
+        color: #475569;
+        font-size: 14.5px;
+        line-height: 1.7;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-weight: 400;
+    }
+
+    /* Empty state */
+    .news-empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+        max-width: 500px;
+        margin: 30px auto;
+    }
+    
+    .news-empty-state i {
+        font-size: 48px;
+        color: #cbd5e1;
+        margin-bottom: 20px;
+    }
+    
+    .news-empty-state h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+    
+    .news-empty-state p {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 20px;
+    }
+    
+    .btn-clear-search {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-clear-search:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    /* Modal Styling */
+    .news-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .news-modal-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .news-modal-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -45%) scale(0.95);
+        width: 90%;
+        max-width: 650px;
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2);
+        z-index: 2001;
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0.3s ease;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    .news-modal-container.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .news-modal-banner {
+        position: relative;
+        height: 320px;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .news-modal-banner::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0) 40%, rgba(15, 23, 42, 0.5) 100%);
+    }
+
+    .news-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 38px;
+        height: 38px;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 22px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+    .news-modal-close:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .news-modal-content {
+        padding: 30px;
+        text-align: left;
+    }
+
+    .news-modal-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #14b8a6;
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .news-modal-meta i {
+        font-size: 14px;
+    }
+
+    .news-modal-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.35;
+        color: #0f172a;
+        margin-bottom: 20px;
+        letter-spacing: -0.01em;
+    }
+
+    .news-modal-scroll {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .news-modal-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .news-modal-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    .news-modal-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .news-modal-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .news-modal-body {
+        font-family: 'Poppins', sans-serif;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="page-container">
+        <div class="section-head">
+            <div class="eyebrow">{% t "Жаңалықтар" "Новости" %}</div>
+            <h1 class="page-title">{% t "Соңғы оқиғалар" "Последние события" %}</h1>
+        </div>
+
+        <div class="news-grid">
+            {% for post in news_posts %}
+            <article class="news-card2" onclick="openNewsModal(this)" style="cursor: pointer;"
+                     data-title="{% t post.title_kk|escapejs post.title_ru|escapejs %}"
+                     data-date="{{ post.published_at|date:'d.m.Y' }}"
+                     data-image="{% with post.get_cover as cs %}{% if cs %}{{ cs }}{% else %}https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Volunteering.jpg/1200px-Volunteering.jpg{% endif %}{% endwith %}"
+                     data-body="{% filter escapejs %}{% if request.COOKIES.ui_lang == 'ru' and post.body_ru %}{{ post.body_ru }}{% else %}{{ post.body_kk }}{% endif %}{% endfilter %}">
+                <div class="news-media" style="background-image:url('{% with post.get_cover as cs %}{% if cs %}{{ cs }}{% else %}https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Volunteering.jpg/1200px-Volunteering.jpg{% endif %}{% endwith %}');"></div>
+                <div class="news-body">
+                    <div class="news-meta2">
+                        <i class="far fa-calendar-alt"></i> {{ post.published_at|date:"d.m.Y" }}
+                    </div>
+                    <div class="news-title2">{% t post.title_kk post.title_ru %}</div>
+                    <div class="news-text2">
+                        {% if request.COOKIES.ui_lang == 'ru' and post.body_ru %}
+                            {{ post.body_ru }}
+                        {% else %}
+                            {{ post.body_kk }}
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="news-empty-state" style="grid-column: 1 / -1;">
+                <i class="fas fa-search"></i>
+                {% if search_query %}
+                    <h3>{% t "Ештеңе табылмады" "Ничего не найдено" %}</h3>
+                    <p>{% t "Сұранысыңыз бойынша ешқандай жаңалық табылмады:" "По вашему запросу не найдено новостей:" %} "<strong>{{ search_query }}</strong>"</p>
+                    <a href="{% url 'news' %}" class="btn-clear-search">{% t "Іздеуді тазарту" "Сбросить поиск" %}</a>
+                {% else %}
+                    <h3>{% t "Әзірге жаңалықтар жоқ" "Пока нет новостей" %}</h3>
+                    <p>{% t "Жақында жаңа жарияланымдар пайда болады." "Скоро здесь появятся новые публикации." %}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Elegant News Detail Modal -->
+<div class="news-modal-backdrop" id="newsModalBackdrop" onclick="closeNewsModal()"></div>
+<div class="news-modal-container" id="newsModal">
+    <button class="news-modal-close" onclick="closeNewsModal()">&times;</button>
+    <div class="news-modal-banner" id="newsModalBanner"></div>
+    <div class="news-modal-content">
+        <div class="news-modal-meta" id="newsModalMeta">
+            <i class="far fa-calendar-alt"></i> <span id="newsModalDate"></span>
+        </div>
+        <h2 class="news-modal-title" id="newsModalTitle"></h2>
+        <div class="news-modal-scroll">
+            <div class="news-modal-body" id="newsModalBody"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openNewsModal(card) {
+        const title = card.getAttribute('data-title');
+        const date = card.getAttribute('data-date');
+        const image = card.getAttribute('data-image');
+        const body = card.getAttribute('data-body');
+
+        document.getElementById('newsModalTitle').innerText = title;
+        document.getElementById('newsModalDate').innerText = date;
+        document.getElementById('newsModalBanner').style.backgroundImage = `url('${image}')`;
+        document.getElementById('newsModalBody').innerText = body;
+
+        document.getElementById('newsModalBackdrop').classList.add('active');
+        document.getElementById('newsModal').classList.add('active');
+    }
+
+    function closeNewsModal() {
+        document.getElementById('newsModalBackdrop').classList.remove('active');
+        document.getElementById('newsModal').classList.remove('active');
+    }
+</script>
+{% endblock %}

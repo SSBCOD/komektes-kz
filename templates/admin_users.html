@@ -1,0 +1,403 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Пайдаланушылар" "Пользователи" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051602">
+    <style>
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-client { background: #e0f2fe; color: #0369a1; }
+        .role-volunteer { background: #dcfce7; color: #15803d; }
+        .role-admin { background: #f3e8ff; color: #7e22ce; }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        }
+
+        /* Confirm modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 36px 40px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            text-align: center;
+            animation: fadeInUp 0.25s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .modal-icon {
+            width: 60px; height: 60px;
+            background: #fee2e2;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 18px auto;
+            font-size: 26px; color: #ef4444;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+        .modal-desc  { font-size: 14px; color: #64748b; margin-bottom: 28px; line-height: 1.6; }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; }
+        .btn-cancel {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-confirm-delete {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-confirm-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+        }
+        .search-users {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #334155;
+            background: #f8fafc;
+            width: 280px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-users:focus {
+            outline: none;
+            border-color: #7B61FF;
+            box-shadow: 0 0 0 3px rgba(123,97,255,0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo" class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Мәзір" "Меню" %}</p>
+                <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+                <a href="{% url 'admin_clients' %}" class="menu-item">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span class="link-text">{% t "Клиент өтінімдері" "Заявки клиентов" %}</span>
+                    <span class="badge">{{ pending_requests|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_volunteers' %}" class="menu-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</span>
+                    <span class="badge" style="background: #7B61FF;">{{ pending_volunteers|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_tasks' %}" class="menu-item">
+                    <i class="fas fa-tasks"></i>
+                    <span class="link-text">{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</span>
+                </a>
+                <a href="{% url 'admin_analytics' %}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="link-text">{% t "Талдау" "Аналитика" %}</span>
+                </a>
+                <a href="{% url 'admin_news' %}" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Жаңалықтар" "Новости" %}</span>
+                </a>
+                <a href="{% url 'admin_users' %}" class="menu-item active">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="link-text">{% t "Пайдаланушылар" "Пользователи" %}</span>
+                </a>
+                <div class="spacer"></div>
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content" id="mainContent">
+
+            <header class="top-bar">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="{% t 'Іздеу...' 'Поиск...' %}">
+                </div>
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+                <div class="top-profile">
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{{ user.get_role_display|default:"Модератор" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+
+                <!-- Messages -->
+                {% if messages %}
+                <div style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div style="padding: 12px 18px; border-radius: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 500;
+                        {% if message.tags == 'success' %}background:#dcfce7;color:#15803d;{% else %}background:#fee2e2;color:#dc2626;{% endif %}">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}" style="margin-right:8px;"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="page-header">
+                    <h1>{% t "Пайдаланушыларды басқару" "Управление пользователями" %}</h1>
+                    <p>{% t "Барлық тіркелген пайдаланушылардың тізімі" "Список всех зарегистрированных пользователей" %}</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid" style="margin-bottom: 28px;">
+                    <div class="stat-card">
+                        <div class="stat-icon blue-bg"><i class="fas fa-users"></i></div>
+                        <div class="stat-details">
+                            <h3>{% t "Барлық пайдаланушылар" "Всего пользователей" %}</h3>
+                            <p class="number">{{ all_users.count }}</p>
+                            <span class="trend positive">{% t "Жалпы саны" "Итого" %}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green-bg"><i class="fas fa-user-friends"></i></div>
+                        <div class="stat-details">
+                            <h3>{% t "Клиенттер" "Клиенты" %}</h3>
+                            <p class="number">{{ total_clients }}</p>
+                            <span class="trend positive">{% t "Тіркелген" "Зарегистрированных" %}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple-bg"><i class="fas fa-hands-helping"></i></div>
+                        <div class="stat-details">
+                            <h3>{% t "Еріктілер" "Волонтёры" %}</h3>
+                            <p class="number">{{ total_volunteers }}</p>
+                            <span class="trend positive">{% t "Белсенді" "Активных" %}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="dashboard-card table-card">
+                    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                        <h3>{% t "Пайдаланушылар тізімі" "Список пользователей" %}</h3>
+                        <input type="text" id="userSearch" class="search-users" placeholder="{% t 'Аты немесе телефон...' 'Имя или телефон...' %}" oninput="filterUsers()">
+                    </div>
+
+                    <table class="mini-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>{% t "Пайдаланушы" "Пользователь" %}</th>
+                                <th>{% t "Телефон" "Телефон" %}</th>
+                                <th>{% t "Рөлі" "Роль" %}</th>
+                                <th>{% t "Тіркелген күні" "Дата регистрации" %}</th>
+                                <th>{% t "Өтінімдер" "Заявки" %}</th>
+                                <th>{% t "Әрекет" "Действие" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in all_users %}
+                            <tr class="user-row" data-name="{{ u.get_full_name|lower }} {{ u.username|lower }}" data-phone="{{ u.phone_number|default:'' }}">
+                                <td>
+                                    <div class="user-info">
+                                        <div class="avatar-circle">{{ u.get_full_name|default:u.username|make_list|first|upper }}</div>
+                                        <span>{{ u.get_full_name|default:u.username }}</span>
+                                    </div>
+                                </td>
+                                <td style="color: #64748b; font-size: 13px;">{{ u.phone_number|default:"—" }}</td>
+                                <td>
+                                    {% if u.role == 'Client' %}
+                                        <span class="role-badge role-client">{% t "Клиент" "Клиент" %}</span>
+                                    {% elif u.role == 'Volunteer' %}
+                                        <span class="role-badge role-volunteer">{% t "Ерікті" "Волонтёр" %}</span>
+                                    {% else %}
+                                        <span class="role-badge role-admin">{% t "Әкімші" "Админ" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="color: #64748b; font-size: 13px;">{{ u.date_joined|date:"d.m.Y" }}</td>
+                                <td style="text-align:center; font-weight:600; color:#334155;">{{ u.help_requests.count }}</td>
+                                <td>
+                                    <button class="btn-delete" onclick="confirmDelete({{ u.pk }}, '{{ u.get_full_name|default:u.username|escapejs }}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                        {% t "Жою" "Удалить" %}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align:center; color:#a0aec0; padding:30px;">
+                                    {% t "Пайдаланушылар жоқ" "Пользователей нет" %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-user-times"></i></div>
+            <div class="modal-title" id="modalTitle">{% t "Пайдаланушыны жою" "Удалить пользователя" %}</div>
+            <div class="modal-desc" id="modalDesc">{% t "Бұл әрекетті болдырмау мүмкін емес." "Это действие нельзя отменить." %}</div>
+            <form method="POST" action="{% url 'admin_users' %}" id="deleteForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_user">
+                <input type="hidden" name="user_id" id="deleteUserId">
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">{% t "Болдырмау" "Отмена" %}</button>
+                    <button type="submit" class="btn-confirm-delete">
+                        <i class="fas fa-trash-alt" style="margin-right:6px;"></i>{% t "Жою" "Удалить" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const icon = toggleBtn.querySelector('i');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+            if (sidebar.classList.contains('close')) {
+                icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+            } else {
+                icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
+            }
+        });
+
+        // Delete confirm modal
+        const isKk = document.cookie.includes('ui_lang=ru') ? false : true;
+
+        function confirmDelete(userId, userName) {
+            document.getElementById('deleteUserId').value = userId;
+            const title = isKk ? `"${userName}" жою` : `Удалить "${userName}"`;
+            const desc  = isKk
+                ? `Пайдаланушының барлық деректері, өтінімдері мен тапсырмалары да жойылады. Бұл әрекетті болдырмау мүмкін емес.`
+                : `Все данные пользователя, его заявки и задачи также будут удалены. Это действие нельзя отменить.`;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDesc').textContent  = desc;
+            document.getElementById('deleteModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+        }
+
+        // Close on overlay click
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Search filter
+        function filterUsers() {
+            const q = document.getElementById('userSearch').value.toLowerCase();
+            document.querySelectorAll('.user-row').forEach(row => {
+                const name  = row.dataset.name  || '';
+                const phone = row.dataset.phone || '';
+                row.style.display = (name.includes(q) || phone.includes(q)) ? '' : 'none';
+            });
+        }
+
+        // Connect top bar search to filterUsers
+        const topSearch = document.querySelector('.search-box input');
+        if (topSearch) {
+            topSearch.addEventListener('input', () => {
+                const userSearch = document.getElementById('userSearch');
+                if (userSearch) {
+                    userSearch.value = topSearch.value;
+                    filterUsers();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Клиент өтінімдері" "Заявки клиентов" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051602">
+    <style>
+        /* Modals for Admin Clients */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.45);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 64px rgba(15,23,42,0.18);
+            position: relative;
+            animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: #1e293b; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .form-input {
+            height: 40px; padding: 0 14px;
+            border: 1px solid #e2e8f0; border-radius: 10px;
+            font-family: inherit; font-size: 13px; color: #334155;
+            background: #f8fafc; transition: all 0.2s ease;
+            width: 100%;
+        }
+        .form-input:focus { outline: none; border-color: #7B61FF; background: #fff; box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.15); }
+        
+        .btn-modal-submit {
+            width: 100%; background: linear-gradient(135deg, #7B61FF, #6140FF);
+            color: white; border: none; padding: 13px;
+            border-radius: 12px; font-family: inherit; font-weight: 600;
+            font-size: 14px; cursor: pointer; margin-top: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-modal-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(123,97,255,0.3); }
+        
+        .btn-modal-close {
+            position: absolute; top: 20px; right: 20px;
+            background: #f1f5f9; border: none; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; font-size: 16px; color: #64748b;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-modal-close:hover { background: #e2e8f0; color: #334155; }
+        
+        /* Premium Floating Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            pointer-events: none;
+        }
+        .toast-item {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transform: translateX(120%);
+            animation: slideInToast 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transition: all 0.3s ease;
+        }
+        .toast-item.success { border-left: 4px solid #10b981; }
+        .toast-item.success i { color: #10b981; font-size: 16px; }
+        .toast-item.error { border-left: 4px solid #ef4444; }
+        .toast-item.error i { color: #ef4444; font-size: 16px; }
+        
+        .toast-text {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        .toast-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 0 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+        .toast-close-btn:hover { color: #64748b; }
+        
+        @keyframes slideInToast {
+            to { transform: translateX(0); }
+        }
+        .toast-item.fade-out {
+            transform: translateX(120%);
+            opacity: 0;
+            margin-top: -50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-wrapper">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo"
+                        class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Мәзір" "Меню" %}</p>
+                <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+
+                <a href="{% url 'admin_clients' %}" class="menu-item active">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span class="link-text">{% t "Клиент өтінімдері" "Заявки клиентов" %}</span>
+                    <span class="badge">{{ pending_requests|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_volunteers' %}" class="menu-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</span>
+                    <span class="badge" style="background: #7B61FF;">{{ pending_volunteers|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_tasks' %}" class="menu-item">
+                    <i class="fas fa-tasks"></i>
+                    <span class="link-text">{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</span>
+                </a>
+                <a href="{% url 'admin_analytics' %}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="link-text">{% t "Талдау" "Аналитика" %}</span>
+                </a>
+
+
+                <a href="{% url 'admin_news' %}" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Жаңалықтар" "Новости" %}</span>
+                </a>
+                <a href="{% url 'admin_users' %}" class="menu-item">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="link-text">{% t "Пайдаланушылар" "Пользователи" %}</span>
+                </a>
+                <div class="spacer"></div>
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+
+            <header class="top-bar">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="{% t 'Өтінімді іздеу...' 'Поиск заявки...' %}">
+                </div>
+
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+
+                <div class="top-profile">
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{{ user.get_role_display|default:"Модератор" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h1>{% t "Өтінімдерді басқару" "Управление заявками" %}</h1>
+                    <p>{% t "Клиент сұраныстарын өңдеу" "Обработка запросов клиентов" %}</p>
+                </div>
+
+                {% if messages %}
+                <div style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div style="padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; {% if message.tags == 'error' %}background: #fde8e8; color: #9b1c1c;{% else %}background: #dcfce7; color: #166534;{% endif %}">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">{% t "Барлық өтінімдер" "Все заявки" %}</button>
+                    <button class="filter-btn" data-filter="pending">{% t "Күтуде" "В ожидании" %} <span class="counter">{{ pending_requests|default:"0" }}</span></button>
+                    <button class="filter-btn" data-filter="approved">{% t "Қабылданды/Жарияланды" "Принято/Опубликовано" %}</button>
+                    <button class="filter-btn" data-filter="completed">{% t "Орындалды" "Выполнено" %}</button>
+                    <button class="filter-btn" data-filter="rejected">{% t "Бас тартылған" "Отклонённые" %}</button>
+                </div>
+
+                <div class="dashboard-card table-card full-width">
+                    <table class="full-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>{% t "Клиент" "Клиент" %}</th>
+                                <th>{% t "Көмек түрі" "Тип помощи" %}</th>
+                                <th>{% t "Мекенжай" "Адрес" %}</th>
+                                <th>{% t "Күні" "Дата" %}</th>
+                                <th>{% t "Мәртебе" "Статус" %}</th>
+                                <th>{% t "Әрекеттер" "Действия" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% for req in help_requests %}
+                            <tr data-status="{% if req.status == 'Rejected' %}rejected{% elif req.status == 'Pending' %}pending{% elif req.status == 'Completed' %}completed{% else %}approved{% endif %}" data-search="{{ req.client.get_full_name|default:req.client.username|lower }}">
+                                <td>#{{ req.id }}</td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="avatar-circle">{{ req.client.first_name|default:req.client.username|make_list|first|upper }}</div>
+                                        <div class="user-text">
+                                            <span class="name">{{ req.client.get_full_name|default:req.client.username }}</span>
+                                            <span class="sub">{{ req.client.city|default:"—" }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{% tc req.get_category_display|default:req.category %}</td>
+                                <td style="font-size: 12px; color: #64748b; max-width: 150px;">{{ req.address|truncatechars:30 }}</td>
+                                <td>{{ req.created_at|date:"d M Y" }}</td>
+                                <td>
+                                    {% if req.status == 'Rejected' %}
+                                        <span class="status-tag danger">{% t "Бас тартылды" "Отклонено" %}</span>
+                                    {% elif req.status == 'Completed' %}
+                                        <span class="status-tag success">{% t "Орындалды" "Выполнено" %}</span>
+                                    {% elif req.status == 'Review' %}
+                                        <span class="status-tag success">{% t "Қабылданды" "Принято" %}</span>
+                                    {% elif req.status == 'Process' %}
+                                        <span class="status-tag process">{% t "Жарияланды" "Опубликовано" %}</span>
+                                    {% else %}
+                                        <span class="status-tag pending">{% t "Күтуде" "В ожидании" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <!-- Always show view details button -->
+                                        <button class="btn-action view view-trigger-btn" 
+                                            data-id="{{ req.id }}" 
+                                            data-client="{{ req.client.get_full_name|default:req.client.username }}" 
+                                            data-city="{{ req.client.city|default:'—' }}" 
+                                            data-category="{% tc req.get_category_display|default:req.category %}" 
+                                            data-address="{{ req.address }}" 
+                                            data-date="{{ req.created_at|date:'d M Y' }}" 
+                                            data-status-tag="{% if req.status == 'Rejected' %}danger{% elif req.status == 'Completed' %}success{% elif req.status == 'Review' %}success{% elif req.status == 'Process' %}process{% else %}pending{% endif %}"
+                                            data-status-text="{% if req.status == 'Rejected' %}{% t 'Бас тартылды' 'Отклонено' %}{% elif req.status == 'Completed' %}{% t 'Орындалды' 'Выполнено' %}{% elif req.status == 'Review' %}{% t 'Қабылданды' 'Принято' %}{% elif req.status == 'Process' %}{% t 'Жарияланды' 'Опубликовано' %}{% else %}{% t 'Күтуде' 'В ожидании' %}{% endif %}" 
+                                            data-description="{{ req.description|escapejs }}" 
+                                            title="{% t 'Қарау' 'Просмотр' %}" type="button">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+
+                                        {% if req.status == 'Pending' %}
+                                            <form method="POST" action="{% url 'admin_clients' %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="request_id" value="{{ req.id }}">
+                                                <input type="hidden" name="action" value="accept">
+                                                <button class="btn-action accept" title="{% t 'Қабылдау' 'Принять' %}" type="submit"><i class="fas fa-check"></i></button>
+                                            </form>
+                                            <form method="POST" action="{% url 'admin_clients' %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="request_id" value="{{ req.id }}">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button class="btn-action reject" title="{% t 'Бас тарту' 'Отклонить' %}" type="submit"><i class="fas fa-times"></i></button>
+                                            </form>
+                                        {% elif req.status == 'Review' %}
+                                            <button class="btn-action accept publish-trigger-btn" 
+                                                data-id="{{ req.id }}" 
+                                                data-category="{% tc req.get_category_display|default:req.category %}" 
+                                                data-client="{{ req.client.get_full_name|default:req.client.username }}" 
+                                                title="{% t 'Тапсырма ретінде жариялау' 'Опубликовать как задачу' %}" type="button">
+                                                <i class="fas fa-bullhorn"></i>
+                                            </button>
+                                            <form method="POST" action="{% url 'admin_clients' %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="request_id" value="{{ req.id }}">
+                                                <input type="hidden" name="action" value="reject">
+                                                <button class="btn-action reject" title="{% t 'Бас тарту' 'Отклонить' %}" type="submit"><i class="fas fa-times"></i></button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" style="text-align:center; color:#94a3b8; padding: 18px;">{% t "Өтінімдер жоқ." "Заявок пока нет." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. Логика Сайдбара (Открыть/Закрыть)
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+
+            if (sidebar.classList.contains('close')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // 2. Filter + Search Logic
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const tableRows = document.querySelectorAll('#tableBody tr');
+        let currentFilter = 'all';
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentFilter = button.getAttribute('data-filter');
+                applyFilters();
+            });
+        });
+
+        function applyFilters() {
+            const searchInput = document.querySelector('.search-box input');
+            const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+            tableRows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status') || '';
+                const rowSearch = (row.getAttribute('data-search') || row.textContent || '').toLowerCase();
+                const matchesFilter = (currentFilter === 'all') || (currentFilter === rowStatus);
+                const matchesSearch = !searchVal || rowSearch.includes(searchVal);
+                row.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
+            });
+        }
+
+        const searchInput = document.querySelector('.search-box input');
+        if (searchInput) { searchInput.addEventListener('input', applyFilters); }
+
+        // 3. Modals Logic (Publish Task & View Details)
+        
+        // Open Publish Modal
+        document.querySelectorAll('.publish-trigger-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const reqId = btn.getAttribute('data-id');
+                const category = btn.getAttribute('data-category');
+                const client = btn.getAttribute('data-client');
+                
+                document.getElementById('publishRequestId').value = reqId;
+                document.getElementById('publishModalSubtitle').innerText = `${category} — ${client}`;
+                document.getElementById('publishModal').classList.add('open');
+            });
+        });
+        
+        function closePublishModal() {
+            document.getElementById('publishModal').classList.remove('open');
+        }
+        
+        // Open View Details Modal
+        document.querySelectorAll('.view-trigger-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const client = btn.getAttribute('data-client');
+                const city = btn.getAttribute('data-city');
+                const category = btn.getAttribute('data-category');
+                const address = btn.getAttribute('data-address');
+                const date = btn.getAttribute('data-date');
+                const statusTag = btn.getAttribute('data-status-tag');
+                const statusText = btn.getAttribute('data-status-text');
+                const description = btn.getAttribute('data-description');
+                
+                document.getElementById('viewClientAvatar').innerText = client.trim().charAt(0).toUpperCase();
+                document.getElementById('viewClientName').innerText = client;
+                document.getElementById('viewClientCity').innerText = city;
+                document.getElementById('viewCategory').innerText = category;
+                document.getElementById('viewDate').innerText = date;
+                document.getElementById('viewAddress').innerText = address;
+                document.getElementById('viewDescription').innerText = description || 'Сипаттамасы толтырылмаған / Описание отсутствует.';
+                
+                // Style the status tag dynamically
+                const statusSpan = document.getElementById('viewStatus');
+                statusSpan.className = `status-tag ${statusTag}`;
+                statusSpan.innerText = statusText;
+                
+                document.getElementById('viewModal').classList.add('open');
+            });
+        });
+        
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('open');
+        }
+        
+        // Close modals on background click
+        window.onclick = function(event) {
+            const publishModal = document.getElementById('publishModal');
+            const viewModal = document.getElementById('viewModal');
+            if (event.target === publishModal) {
+                closePublishModal();
+            }
+            if (event.target === viewModal) {
+                closeViewModal();
+            }
+        };
+
+        // 4. Auto-dismiss Toasts
+        document.querySelectorAll('.toast-item').forEach(toast => {
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        });
+    </script>
+
+    <!-- Modal overlay for publishing task -->
+    <div class="modal-overlay" id="publishModal">
+        <div class="modal-box">
+            <button class="btn-modal-close" onclick="closePublishModal()">&times;</button>
+            <h3>{% t "Тапсырма ретінде жариялау" "Опубликовать как задачу" %}</h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;" id="publishModalSubtitle"></p>
+            
+            <form method="POST" action="{% url 'admin_clients' %}">
+                {% csrf_token %}
+                <input type="hidden" name="request_id" id="publishRequestId" value="">
+                <input type="hidden" name="action" value="publish_task">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>{% t "Күні" "Дата" %}</label>
+                        <input type="date" name="task_date" class="form-input" value="{{ default_task_date }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% t "Уақыты" "Время" %}</label>
+                        <input type="time" name="task_time" class="form-input" value="{{ default_task_time }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>{% t "Ұзақтығы (сағат)" "Длительность (часов)" %}</label>
+                        <input type="number" name="task_duration" class="form-input" min="1" max="24" value="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>{% t "Еріктіні тағайындау" "Назначить волонтера" %}</label>
+                        <select name="assigned_volunteer" class="form-input">
+                            <option value="">-- {% t "Жариялау (еріктісіз)" "Опубликовать (без волонтера)" %} --</option>
+                            {% for vol in volunteers %}
+                                <option value="{{ vol.id }}">{{ vol.get_full_name|default:vol.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn-modal-submit" type="submit">{% t "Жариялау" "Опубликовать задачу" %}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal overlay for viewing request details -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal-box">
+            <button class="btn-modal-close" onclick="closeViewModal()">&times;</button>
+            <h3 style="margin-bottom: 24px;">{% t "Өтінім туралы ақпарат" "Детали заявки" %}</h3>
+            
+            <div class="detail-row" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                    <div class="avatar-circle lg" id="viewClientAvatar" style="width: 48px; height: 48px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; background: #e0f2fe; color: #0284c7; font-weight: bold;">U</div>
+                    <div>
+                        <h4 id="viewClientName" style="font-size: 15px; font-weight: 600; color: #1e293b; margin: 0;"></h4>
+                        <p id="viewClientCity" style="font-size: 12px; color: #64748b; margin: 0;"></p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px;">{% t "Көмек түрі" "Тип помощи" %}</span>
+                        <strong id="viewCategory" style="font-size: 13px; color: #334155; font-weight: 600;"></strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px;">{% t "Жарияланған күні" "Дата подачи" %}</span>
+                        <strong id="viewDate" style="font-size: 13px; color: #334155; font-weight: 600;"></strong>
+                    </div>
+                </div>
+                
+                <div>
+                    <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px;">{% t "Мекенжай" "Адрес" %}</span>
+                    <strong id="viewAddress" style="font-size: 13px; color: #334155; font-weight: 600; display: block; word-break: break-all;"></strong>
+                </div>
+                
+                <div>
+                    <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 2px;">{% t "Қазіргі мәртебесі" "Текущий статус" %}</span>
+                    <span id="viewStatus" class="status-tag" style="display: inline-block; margin-top: 4px;"></span>
+                </div>
+                
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-top: 6px;">
+                    <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">{% t "Сипаттамасы" "Описание" %}</span>
+                    <p id="viewDescription" style="font-size: 13px; color: #475569; line-height: 1.5; margin: 0; white-space: pre-wrap; word-break: break-word;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+        <div class="toast-item {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+            <span class="toast-text">{{ message }}</span>
+            <button class="toast-close-btn" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

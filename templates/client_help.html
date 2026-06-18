@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_lang %}
+
+{% block title %}{% t "Көмек алу" "Получить помощь" %} — Komektes.kz{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="page-container">
+        <div class="section-head">
+            <div class="eyebrow">{% t "Көмек" "Помощь" %}</div>
+            <h1 class="page-title">
+                {% if page %}
+                    {% t page.title_kk page.title_ru %}
+                {% else %}
+                    {% t "Көмекке өтінім беру" "Подать заявку на помощь" %}
+                {% endif %}
+            </h1>
+            <p class="page-lead">
+                {% if page %}
+                    {% if request.COOKIES.ui_lang == 'ru' and page.body_ru %}
+                        {{ page.body_ru|linebreaksbr }}
+                    {% else %}
+                        {{ page.body_kk|linebreaksbr }}
+                    {% endif %}
+                {% else %}
+                    {% t "Қауіпсіздік пен сапаны сақтау үшін өтінім беру аккаунт арқылы жүзеге асады." "Для безопасности и качества подача заявки доступна через аккаунт." %}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="cta-card">
+            <div>
+                <div class="card-title">{% t "Өтінім қалай беріледі?" "Как подать заявку?" %}</div>
+                <div class="card-text">
+                    {% t "1) Жүйеге кіріңіз немесе тіркеліңіз" "1) Войдите или зарегистрируйтесь" %}<br>
+                    {% t "2) “Көмек сұрау” бөлімінде өтінімді толтырыңыз" "2) Заполните заявку в разделе “Запросить помощь”" %}<br>
+                    {% t "3) Модератор өтінімді қарап, ерікті тағайындайды" "3) Модератор проверит заявку и назначит волонтёра" %}
+                </div>
+            </div>
+            <div class="cta-actions">
+                <a class="btn-primary" href="{% url 'sign' %}">{% t "Кіру / Тіркелу" "Вход / Регистрация" %}</a>
+                <a class="btn-secondary" href="{% url 'about' %}">{% t "Платформа туралы" "О платформе" %}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

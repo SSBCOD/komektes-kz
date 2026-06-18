@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Басты бет — Komektes.kz{% endblock %}
+
+{% block content %}
+<section class="dashboard-card" style="max-width: 980px; margin: 28px auto; padding: 28px;">
+    <h1 style="margin: 0 0 10px 0;">Еріктілер деген кім?</h1>
+    <p style="margin: 0 0 18px 0; color: var(--color-muted);">
+        Еріктілер — қоғам игілігі үшін өз уақыты мен күш-жігерін ақысыз жұмсайтын, жүрегі кең жандар. Біз осындай адамдарды біріктіреміз.
+    </p>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="{% url 'about' %}" class="btn-black">Жоба туралы</a>
+        <a href="{% url 'help' %}" class="btn-login">Көмек алу</a>
+        <a href="{% url 'become_volunteer' %}" class="btn-view">Ерікті болу</a>
+    </div>
+</section>
+{% endblock %}

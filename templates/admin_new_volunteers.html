@@ -1,0 +1,488 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051602">
+    <style>
+        /* Premium Toggle Switch Style */
+        .premium-switch-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 8px 16px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        
+        .premium-switch-container:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
+        }
+
+        .premium-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+        
+        .premium-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .premium-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 30px;
+            box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.08);
+        }
+        
+        .premium-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+        }
+        
+        input:checked + .premium-slider {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        input:checked + .premium-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .status-label {
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+        
+        .status-label.text-rejected {
+            color: #94a3b8;
+        }
+        
+        .status-label.text-approved {
+            color: #94a3b8;
+        }
+        
+        .status-label.active.text-rejected {
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+        }
+        
+        .status-label.active.text-approved {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+        
+        /* Premium Floating Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            pointer-events: none;
+        }
+        
+        .toast-item {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transform: translateX(120%);
+            animation: slideInToast 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transition: all 0.3s ease;
+        }
+        
+        .toast-item.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .toast-item.success i {
+            color: #10b981;
+            font-size: 16px;
+        }
+        
+        .toast-item.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .toast-item.error i {
+            color: #ef4444;
+            font-size: 16px;
+        }
+        
+        .toast-text {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        
+        .toast-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 0 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+        
+        .toast-close-btn:hover {
+            color: #64748b;
+        }
+        
+        @keyframes slideInToast {
+            to {
+                transform: translateX(0);
+            }
+        }
+        
+        .toast-item.fade-out {
+            transform: translateX(120%);
+            opacity: 0;
+            margin-top: -50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-wrapper">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo"
+                        class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Мәзір" "Меню" %}</p>
+                <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+                <a href="{% url 'admin_clients' %}" class="menu-item">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span class="link-text">{% t "Клиент өтінімдері" "Заявки клиентов" %}</span>
+                    <span class="badge">{{ pending_requests|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_volunteers' %}" class="menu-item active">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</span>
+                    <span class="badge" style="background: #7B61FF;">{{ pending_volunteers|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_tasks' %}" class="menu-item">
+                    <i class="fas fa-tasks"></i>
+                    <span class="link-text">{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</span>
+                </a>
+                <a href="{% url 'admin_analytics' %}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="link-text">{% t "Талдау" "Аналитика" %}</span>
+                </a>
+
+                <a href="{% url 'admin_news' %}" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Жаңалықтар" "Новости" %}</span>
+                </a>
+                <a href="{% url 'admin_users' %}" class="menu-item">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="link-text">{% t "Пайдаланушылар" "Пользователи" %}</span>
+                </a>
+                <div class="spacer"></div>
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content no-scroll" id="mainContent">
+
+            <header class="top-bar compact-header">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title-box">
+                    <h1>{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</h1>
+                    <p>{% t "Модерация" "Модерация" %}</p>
+                </div>
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+                <div class="top-profile">
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{{ user.get_role_display|default:"Модератор" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="split-container">
+
+                <div class="candidates-list-panel">
+                    <div class="list-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="{% t 'Іздеу...' 'Поиск...' %}">
+                    </div>
+
+                    <div class="candidates-scroll-area">
+                        {% for app in applications %}
+                        <div class="candidate-card{% if forloop.first %} active{% endif %}"
+                            data-id="{{ app.id }}"
+                            data-name="{{ app.user.get_full_name|default:app.user.username }}"
+                            data-city="{{ app.user.city|default:"" }}"
+                            data-skills="{{ app.skills }}"
+                            data-car="{% if app.has_personal_car %}1{% else %}0{% endif %}"
+                            data-motivation="{{ app.motivation_reason|escapejs }}"
+                            data-status="{{ app.get_status_display|default:app.status }}"
+                            data-status-code="{{ app.status }}"
+                            onclick="selectCandidate(this)">
+                            <div class="card-top">
+                                <div class="avatar-circle">{{ app.user.first_name|default:app.user.username|make_list|first|upper }}</div>
+                                <div class="card-info">
+                                    <h3>{{ app.user.get_full_name|default:app.user.username }}</h3>
+                                    <span>{{ app.user.city|default:"—" }}{% if app.has_personal_car %} • Авто{% endif %}</span>
+                                </div>
+                                <span class="time-badge">{{ app.submitted_at|date:"d M" }}</span>
+                            </div>
+                            <div class="card-msg-preview">{{ app.motivation_reason|truncatechars:40 }}</div>
+                        </div>
+                        {% empty %}
+                        <div style="color:#94a3b8; padding: 16px;">Заявок в волонтеры пока нет.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="chat-main-panel">
+
+                    <div class="chat-main-header">
+                        <div class="chat-user-details">
+                            <div class="avatar-circle lg" id="currentAvatar">K</div>
+                            <div class="user-meta">
+                                <h2 id="currentName">{% t "Өтінімді таңдаңыз" "Выберите заявку" %}</h2>
+                                <p id="currentInfo"></p>
+                            </div>
+                        </div>
+                        <div class="header-actions" style="margin-left: auto;">
+                            <form method="POST" action="{% url 'admin_volunteers' %}" id="statusToggleForm" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="application_id" id="toggleApplicationId" value="">
+                                <input type="hidden" name="action" id="toggleAction" value="">
+                                <div class="premium-switch-container">
+                                    <span class="status-label text-rejected" id="labelRejected">{% t "Бас тартылды" "Отклонено" %}</span>
+                                    <label class="premium-switch">
+                                        <input type="checkbox" id="statusCheckbox" onchange="handleStatusToggle(this)">
+                                        <span class="premium-slider"></span>
+                                    </label>
+                                    <span class="status-label text-approved" id="labelApproved">{% t "Қабылданды" "Принято" %}</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages-area" id="messageArea">
+                        <div class="system-date">{% t "Хат алмасу тарихы" "История переписки" %}</div>
+                        <div class="msg-row received">
+                            <div class="bubble">
+                                {% t "Үміткердің хабарламасы осы жерде көрсетіледі." "Сообщение кандидата будет показано здесь." %}
+                                <span class="time">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Сайдбар
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+        });
+
+        // ВЫБОР КАНДИДАТА
+        const currentName = document.getElementById('currentName');
+        const currentInfo = document.getElementById('currentInfo');
+        const currentAvatar = document.getElementById('currentAvatar');
+        const messageArea = document.getElementById('messageArea');
+
+        function selectCandidate(element) {
+            // Смена активного класса
+            document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            // Обновление данных справа
+            const name = element.dataset.name || '';
+            const city = element.dataset.city || '';
+            const skills = element.dataset.skills || '';
+            const car = element.dataset.car === '1' ? '{% t "Көлігі бар" "Есть авто" %}' : '{% t "Көлігі жоқ" "Без авто" %}';
+            const status = element.dataset.status || '';
+            const motivation = element.dataset.motivation || '';
+            const statusCode = element.dataset.statusCode || 'Pending';
+
+            currentName.innerText = name;
+            currentInfo.innerText = [city, car, status, skills].filter(Boolean).join(' • ');
+
+            // Обновление ползунка и меток статуса
+            const statusCheckbox = document.getElementById('statusCheckbox');
+            const labelRejected = document.getElementById('labelRejected');
+            const labelApproved = document.getElementById('labelApproved');
+            document.getElementById('toggleApplicationId').value = element.dataset.id || '';
+
+            if (statusCode === 'Approved') {
+                statusCheckbox.checked = true;
+                labelApproved.classList.add('active');
+                labelRejected.classList.remove('active');
+            } else if (statusCode === 'Rejected') {
+                statusCheckbox.checked = false;
+                labelRejected.classList.add('active');
+                labelApproved.classList.remove('active');
+            } else {
+                // Pending - ползунок выключен, метки нейтральные
+                statusCheckbox.checked = false;
+                labelRejected.classList.remove('active');
+                labelApproved.classList.remove('active');
+            }
+
+            // Берем букву и цвет из карточки
+            const avatarSrc = element.querySelector('.avatar-circle');
+            currentAvatar.innerText = avatarSrc.innerText;
+            currentAvatar.style.background = avatarSrc.style.background;
+            currentAvatar.style.color = avatarSrc.style.color;
+
+            messageArea.innerHTML = `
+                <div class="system-date">{% t "Хат алмасу тарихы" "История переписки" %}</div>
+                <div class="msg-row received">
+                    <div class="bubble">
+                        ${motivation || '{% t "Өтінімдегі хабарлама толтырылмаған." "Сообщение из заявки не заполнено." %}'}
+                        <span class="time">{% t "Жақында" "Недавно" %}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Обработка переключения ползунка
+        function handleStatusToggle(checkbox) {
+            const toggleAction = document.getElementById('toggleAction');
+            const statusToggleForm = document.getElementById('statusToggleForm');
+            
+            if (checkbox.checked) {
+                toggleAction.value = 'accept';
+            } else {
+                toggleAction.value = 'reject';
+            }
+            
+            statusToggleForm.submit();
+        }
+
+        // Авто-выделение при загрузке страницы
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedId = urlParams.get('selected_id');
+        let targetCard = null;
+        
+        if (selectedId) {
+            targetCard = document.querySelector(`.candidate-card[data-id="${selectedId}"]`);
+        }
+        if (!targetCard) {
+            targetCard = document.querySelector('.candidate-card');
+        }
+        if (targetCard) {
+            selectCandidate(targetCard);
+        }
+
+        // Автоматическое скрытие уведомлений через 4 секунды
+        document.querySelectorAll('.toast-item').forEach(toast => {
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        });
+
+        // Search Filter for Candidates
+        const searchInput = document.querySelector('.list-search input');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.toLowerCase();
+                document.querySelectorAll('.candidate-card').forEach(card => {
+                    const name = (card.dataset.name || '').toLowerCase();
+                    card.style.display = name.includes(q) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+        <div class="toast-item {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+            <span class="toast-text">{{ message }}</span>
+            <button class="toast-close-btn" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_lang %}
+
+{% block title %}{% t "Біз туралы" "О нас" %} — Komektes.kz{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-container">
+        <div class="page-hero-grid">
+            <div>
+                <div class="eyebrow">Komektes.kz</div>
+                <h1 class="page-title">
+                    {% if page %}
+                        {% t page.title_kk page.title_ru %}
+                    {% else %}
+                        {% t "Қоғам үшін пайдалы істерді бірге жасайық" "Давайте вместе делать добрые дела" %}
+                    {% endif %}
+                </h1>
+                <p class="page-lead">
+                    {% if page %}
+                        {% if request.COOKIES.ui_lang == 'ru' and page.body_ru %}
+                            {{ page.body_ru|linebreaksbr }}
+                        {% else %}
+                            {{ page.body_kk|linebreaksbr }}
+                        {% endif %}
+                    {% else %}
+                        {% t "Komektes.kz — көмектесе алатын жандар мен көмекке мұқтаж адамдарды бір платформада байланыстыратын жүйе. Біз қауіпсіз, түсінікті және нәтижеге бағытталған үдеріс құруды мақсат етеміз." "Komektes.kz — платформа, которая связывает людей, готовых помочь, и тех, кому нужна помощь. Наша цель — безопасный, понятный и результативный процесс." %}
+                    {% endif %}
+                </p>
+                <div class="page-actions">
+                    <a class="btn-primary" href="{% url 'help' %}">{% t "Көмек алу" "Получить помощь" %}</a>
+                    <a class="btn-secondary" href="{% url 'become_volunteer' %}">{% t "Ерікті болу" "Стать волонтёром" %}</a>
+                </div>
+            </div>
+            <div class="hero-card">
+                <div class="hero-card-title">{% t "Неге біз?" "Почему мы?" %}</div>
+                <ul class="hero-list">
+                    <li>{% t "Өтінімдерді нақты санаттармен қабылдау" "Приём заявок по понятным категориям" %}</li>
+                    <li>{% t "Модерация және мәртебе бойынша бақылау" "Модерация и контроль статусов" %}</li>
+                    <li>{% t "Еріктілерге тапсырма тағайындау және есеп" "Назначение задач волонтёрам и учёт" %}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-container">
+        <h2 class="section-title">{% t "Бағыттар" "Направления" %}</h2>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-title">Біргеміз</div>
+                <div class="card-text">{% t "Қарт адамдарға әлеуметтік қолдау және күнделікті тұрмыстық көмек." "Социальная поддержка и бытовая помощь пожилым людям." %}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Эко-Среда</div>
+                <div class="card-text">{% t "Табиғатты тазалау, экологиялық акциялар және жауапты тұтыну." "Уборка территорий, эко-акции и ответственное потребление." %}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Салауатты ұлт</div>
+                <div class="card-text">{% t "Дәрі-дәрмек жеткізу, сүйемелдеу және салауатты өмір салтын қолдау." "Доставка лекарств, сопровождение и поддержка здорового образа жизни." %}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-section" style="background: linear-gradient(135deg, #7B61FF 0%, #6140FF 100%); padding: 60px 0;">
+    <div class="page-container">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; text-align: center;">
+            <div style="color: white;">
+                <div style="font-size: 48px; font-weight: 700; margin-bottom: 8px;">500+</div>
+                <div style="font-size: 16px; opacity: 0.85;"><i class="fas fa-users" style="margin-right: 8px;"></i>{% t "Тіркелген пайдаланушылар" "Зарегистрированных пользователей" %}</div>
+            </div>
+            <div style="color: white;">
+                <div style="font-size: 48px; font-weight: 700; margin-bottom: 8px;">1200+</div>
+                <div style="font-size: 16px; opacity: 0.85;"><i class="fas fa-hands-helping" style="margin-right: 8px;"></i>{% t "Орындалған тапсырмалар" "Выполненных задач" %}</div>
+            </div>
+            <div style="color: white;">
+                <div style="font-size: 48px; font-weight: 700; margin-bottom: 8px;">50+</div>
+                <div style="font-size: 16px; opacity: 0.85;"><i class="fas fa-heart" style="margin-right: 8px;"></i>{% t "Серіктес ұйымдар" "Партнёрских организаций" %}</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;">
+            <div class="dashboard-card" style="padding: 36px;">
+                <h3 style="color: #7B61FF; font-size: 20px; margin-bottom: 16px;"><i class="fas fa-bullseye" style="margin-right: 10px;"></i>{% t "Біздің миссиямыз" "Наша миссия" %}</h3>
+                <p style="color: #4a5568; line-height: 1.8; font-size: 15px;">{% t "Komektes.kz — Қазақстандағы еріктілік қозғалысын дамытуға арналған цифрлық платформа. Біз мұқтаж жандарға жылдам және тиімді көмек жеткізуді мақсат етеміз. Платформа арқылы кез келген азамат ерікті бола алады немесе қажет болған жағдайда көмек сұрай алады." "Komektes.kz — цифровая платформа для развития волонтёрского движения в Казахстане. Мы стремимся обеспечить быструю и эффективную помощь нуждающимся. Через платформу любой гражданин может стать волонтёром или попросить помощь в трудную минуту." %}</p>
+            </div>
+            <div class="dashboard-card" style="padding: 36px;">
+                <h3 style="color: #7B61FF; font-size: 20px; margin-bottom: 16px;"><i class="fas fa-cogs" style="margin-right: 10px;"></i>{% t "Біз қалай жұмыс істейміз" "Как мы работаем" %}</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display:flex; align-items:center; gap:12px;"><div style="background:#7B61FF; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:13px;">1</div><span style="color:#4a5568; font-size:14px;">{% t "Клиент көмек өтінімін жібереді" "Клиент оставляет заявку" %}</span></div>
+                    <div style="display:flex; align-items:center; gap:12px;"><div style="background:#7B61FF; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:13px;">2</div><span style="color:#4a5568; font-size:14px;">{% t "Модератор өтінімді қарайды" "Модератор рассматривает заявку" %}</span></div>
+                    <div style="display:flex; align-items:center; gap:12px;"><div style="background:#7B61FF; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:13px;">3</div><span style="color:#4a5568; font-size:14px;">{% t "Ерікті тапсырманы алады" "Волонтёр берёт задачу" %}</span></div>
+                    <div style="display:flex; align-items:center; gap:12px;"><div style="background:#7B61FF; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-size:13px;">4</div><span style="color:#4a5568; font-size:14px;">{% t "Тапсырма орындалады және тіркеледі" "Задача выполняется и фиксируется" %}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-section" style="background: #f8fafc; padding: 60px 0;">
+    <div class="page-container">
+        <div class="section-head" style="text-align:center; margin-bottom:40px;">
+            <div class="eyebrow">{% t "Құндылықтарымыз" "Наши ценности" %}</div>
+            <h2 class="section-title" style="margin:0;">{% t "Неліктен бізге сенуге болады?" "Почему нам можно доверять?" %}</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+            <div class="dashboard-card" style="padding:32px; text-align:center;">
+                <div style="width:64px; height:64px; background:linear-gradient(135deg,#7B61FF,#6140FF); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;"><i class="fas fa-shield-alt" style="color:white; font-size:24px;"></i></div>
+                <h4 style="color:#1e293b; margin-bottom:10px;">{% t "Сенімділік" "Надёжность" %}</h4>
+                <p style="color:#64748b; font-size:14px; line-height:1.6;">{% t "Барлық өтінімдер модерация арқылы өтеді" "Все заявки проходят модерацию" %}</p>
+            </div>
+            <div class="dashboard-card" style="padding:32px; text-align:center;">
+                <div style="width:64px; height:64px; background:linear-gradient(135deg,#f59e0b,#d97706); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;"><i class="fas fa-bolt" style="color:white; font-size:24px;"></i></div>
+                <h4 style="color:#1e293b; margin-bottom:10px;">{% t "Жылдамдық" "Скорость" %}</h4>
+                <p style="color:#64748b; font-size:14px; line-height:1.6;">{% t "Еріктілер 24 сағат ішінде жауап береді" "Волонтёры реагируют в течение 24 часов" %}</p>
+            </div>
+            <div class="dashboard-card" style="padding:32px; text-align:center;">
+                <div style="width:64px; height:64px; background:linear-gradient(135deg,#10b981,#059669); border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;"><i class="fas fa-globe" style="color:white; font-size:24px;"></i></div>
+                <h4 style="color:#1e293b; margin-bottom:10px;">{% t "Қолжетімділік" "Доступность" %}</h4>
+                <p style="color:#64748b; font-size:14px; line-height:1.6;">{% t "Қазақстанның барлық қалаларында жұмыс істейміз" "Работаем во всех городах Казахстана" %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

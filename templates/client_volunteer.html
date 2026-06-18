@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load ui_lang %}
+
+{% block title %}{% t "Ерікті болу" "Стать волонтёром" %} — Komektes.kz{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="page-container">
+        <div class="section-head">
+            <div class="eyebrow">{% t "Еріктілік" "Волонтёрство" %}</div>
+            <h1 class="page-title">
+                {% if page %}
+                    {% t page.title_kk page.title_ru %}
+                {% else %}
+                    {% t "Ерікті болуға өтінім" "Заявка на волонтёрство" %}
+                {% endif %}
+            </h1>
+            <p class="page-lead">
+                {% if page %}
+                    {% if request.COOKIES.ui_lang == 'ru' and page.body_ru %}
+                        {{ page.body_ru|linebreaksbr }}
+                    {% else %}
+                        {{ page.body_kk|linebreaksbr }}
+                    {% endif %}
+                {% else %}
+                    {% t "Ерікті болу үшін алдымен жүйеге кіріп, сауалнаманы толтырыңыз. Бұл модерация мен қауіпсіздік үшін қажет." "Чтобы стать волонтёром, войдите в систему и заполните анкету. Это нужно для модерации и безопасности." %}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="cta-card">
+            <div>
+                <div class="card-title">{% t "Қалай бастауға болады?" "Как начать?" %}</div>
+                <div class="card-text">
+                    {% t "1) Кіру / тіркелу" "1) Вход / регистрация" %}<br>
+                    {% t "2) “Ерікті болу” бөлімінде сауалнаманы толтыру" "2) Заполнить анкету в разделе “Стать волонтёром”" %}<br>
+                    {% t "3) Модератор шешімінен кейін ерікті рөлі беріледі" "3) После решения модератора будет присвоена роль волонтёра" %}
+                </div>
+            </div>
+            <div class="cta-actions">
+                <a class="btn-primary" href="{% url 'sign' %}">{% t "Кіру / Тіркелу" "Вход / Регистрация" %}</a>
+                <a class="btn-secondary" href="{% url 'about' %}">{% t "Толығырақ" "Подробнее" %}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

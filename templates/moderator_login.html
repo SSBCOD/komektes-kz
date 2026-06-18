@@ -1,0 +1,89 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Модератор панеліне кіру" "Вход в панель модератора" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); font-family: 'Poppins', sans-serif; position: relative; overflow: hidden; }
+        .bg-shape { position: absolute; border-radius: 50%; opacity: 0.08; background: white; }
+        .bg-shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+        .bg-shape-2 { width: 300px; height: 300px; bottom: -100px; left: -80px; }
+        .mod-card { background: white; border-radius: 24px; padding: 48px 44px; width: 100%; max-width: 440px; position: relative; z-index: 10; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        .mod-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
+        .mod-brand img { width: 48px; height: 48px; object-fit: contain; }
+        .mod-brand-text h2 { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .mod-brand-text span { font-size: 12px; color: #64748b; }
+        .mod-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0edff; color: #6140FF; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; margin-bottom: 20px; }
+        .mod-title { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+        .mod-subtitle { font-size: 14px; color: #64748b; margin-bottom: 32px; }
+        .input-wrap { position: relative; margin-bottom: 16px; }
+        .input-wrap i.icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+        .input-wrap input { width: 100%; padding: 13px 14px 13px 40px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 14px; color: #334155; background: #f8fafc; transition: all 0.25s; }
+        .input-wrap input:focus { outline: none; border-color: #7B61FF; background: #fff; box-shadow: 0 0 0 3px rgba(123,97,255,0.12); }
+        .pwd-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; }
+        .btn-mod { width: 100%; padding: 14px; background: linear-gradient(135deg, #7B61FF 0%, #6140FF 100%); color: white; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 8px; }
+        .btn-mod:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(123,97,255,0.3); }
+        .mod-note { display: flex; align-items: center; gap: 8px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 14px; margin-top: 20px; font-size: 12px; color: #92400e; }
+        .back-link { display: block; text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; text-decoration: none; }
+        .back-link:hover { color: #7B61FF; }
+        .mod-alert { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #991b1b; margin-bottom: 12px; }
+        .lang-corner { position: absolute; top: 20px; right: 20px; z-index: 20; }
+    </style>
+</head>
+<body>
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="lang-corner">
+        <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+            <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+        </form>
+    </div>
+    <div class="mod-card">
+        <div class="mod-brand">
+            <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo">
+            <div class="mod-brand-text">
+                <h2>Komektes.kz</h2>
+                <span>{% t "Еріктілер платформасы" "Платформа волонтёров" %}</span>
+            </div>
+        </div>
+        <div class="mod-badge"><i class="fas fa-shield-alt"></i> {% t "Модератор кіруі" "Вход модератора" %}</div>
+        <h1 class="mod-title">{% t "Панельге кіру" "Вход в панель" %}</h1>
+        <p class="mod-subtitle">{% t "Модератор тіркелгісімен кіріңіз" "Войдите с учётными данными модератора" %}</p>
+        {% if messages %}{% for message in messages %}<div class="mod-alert">{{ message }}</div>{% endfor %}{% endif %}
+        <form method="POST" action="{% url 'sign' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="login">
+            <div class="input-wrap">
+                <i class="fas fa-user icon"></i>
+                <input type="text" name="phone_number" placeholder="{% t 'Телефон немесе пайдаланушы аты' 'Телефон или имя пользователя' %}" required>
+            </div>
+            <div class="input-wrap">
+                <i class="fas fa-lock icon"></i>
+                <input type="password" name="password" id="modPwd" placeholder="{% t 'Құпиясөз' 'Пароль' %}" autocomplete="current-password" minlength="8" required>
+                <button type="button" class="pwd-toggle" onclick="togglePwd()"><i class="fas fa-eye" id="pwdIcon"></i></button>
+            </div>
+            <button type="submit" class="btn-mod"><i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>{% t "Кіру" "Войти" %}</button>
+        </form>
+        <div class="mod-note"><i class="fas fa-info-circle"></i> {% t "Тек уәкілетті модераторлар үшін" "Только для авторизованных модераторов" %}</div>
+        <a href="{% url 'index' %}" class="back-link"><i class="fas fa-arrow-left"></i> {% t "Басты бетке оралу" "Вернуться на главную" %}</a>
+    </div>
+    <script>
+        function togglePwd() {
+            const i = document.getElementById('modPwd');
+            const ic = document.getElementById('pwdIcon');
+            i.type = i.type === 'password' ? 'text' : 'password';
+            ic.classList.toggle('fa-eye'); ic.classList.toggle('fa-eye-slash');
+        }
+    </script>
+</body>
+</html>

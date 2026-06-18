@@ -1,0 +1,228 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ui-build" content="2026-05-16-01">
+    <title>{% t "Кіру және тіркелу" "Вход и регистрация" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051613">
+</head>
+
+<body class="auth-page">
+
+    <a href="{% url 'index' %}" class="back-home"><i class="fas fa-arrow-left"></i> {% t "Басты бетке" "На главную" %}</a>
+
+    <form method="POST" action="{% url 'set_ui_language' %}" style="position:absolute; top:20px; right:20px; z-index:10;" class="lang-switch">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+        <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+    </form>
+
+    <div class="shape shape-cube"></div>
+    <div class="shape shape-torus"></div>
+    <div class="shape shape-sphere"></div>
+
+    {% if messages %}
+    <div class="messages" style="position: absolute; top: 10px; z-index: 100; left: 50%; transform: translateX(-50%);">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" style="background: white; padding: 10px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #e53e3e;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="glass-container">
+        <form method="POST" action="{% url 'sign' %}" class="auth-form hidden" id="registerForm">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="register">
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <h2 class="form-title" style="margin-bottom: 10px; text-align: center;">{% t "Тіркелу" "Регистрация" %}</h2>
+                    <input type="text" name="last_name" placeholder="{% t 'Тегі' 'Фамилия' %}" autocomplete="family-name" maxlength="60" pattern="[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\\- ]{2,60}" required>
+                    <input type="text" name="first_name" placeholder="{% t 'Аты' 'Имя' %}" autocomplete="given-name" maxlength="60" pattern="[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\\- ]{2,60}" required>
+                    <input type="text" name="middle_name" placeholder="{% t 'Әкесінің аты' 'Отчество' %}" autocomplete="additional-name" maxlength="60" pattern="[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІіЁё\\- ]{2,60}">
+                    <div class="phone-field">
+                        <span class="phone-prefix">+7</span>
+                        <input type="tel" name="phone_number" placeholder="7X7-XXX-XX-XX" inputmode="numeric" autocomplete="tel" maxlength="13" required>
+                    </div>
+                    <div class="password-field">
+                        <input type="password" name="password" placeholder="{% t 'Құпиясөз' 'Пароль' %}" autocomplete="new-password" minlength="8" required>
+                        <button type="button" class="password-toggle" aria-label="Toggle password" data-toggle="password"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="password-field">
+                        <input type="password" name="password_confirm" placeholder="{% t 'Құпиясөзді қайталаңыз' 'Повторите пароль' %}" autocomplete="new-password" minlength="8" required>
+                        <button type="button" class="password-toggle" aria-label="Toggle password" data-toggle="password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="action-group">
+                    <div class="auth-brand">
+                        <div class="auth-logo">
+                            <img class="auth-logo-img" src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Komektes.kz">
+                        </div>
+                        <div class="auth-brand-text">
+                            <div class="auth-brand-title">Komektes.kz</div>
+                            <div class="auth-brand-slogan">{% t "Еріктілер платформасы" "Платформа волонтёров" %}</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-black">{% t "Тіркелу" "Зарегистрироваться" %}</button>
+
+                    <p class="switch-text">
+                        {% t "Аккаунтыңыз бар ма?" "Уже есть аккаунт?" %} <span onclick="toggleAuth()">{% t "Кіру" "Войти" %}</span>
+                    </p>
+                </div>
+            </div>
+        </form>
+
+        <form method="POST" action="{% url 'sign' %}" class="auth-form" id="loginForm">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="login">
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <h2 class="form-title" style="margin-bottom: 10px; text-align: center;">{% t "Кіру" "Вход" %}</h2>
+                    <div class="phone-field">
+                        <span class="phone-prefix">+7</span>
+                        <input type="tel" name="phone_number" placeholder="7X7-XXX-XX-XX" inputmode="numeric" autocomplete="tel" maxlength="13" required>
+                    </div>
+                    <div class="password-field">
+                        <input type="password" name="password" placeholder="{% t 'Құпиясөз' 'Пароль' %}" autocomplete="current-password" minlength="8" required>
+                        <button type="button" class="password-toggle" aria-label="Toggle password" data-toggle="password"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="forgot-pass">{% t "Құпиясөзді ұмыттыңыз ба?" "Забыли пароль?" %}</div>
+                </div>
+
+                <div class="action-group">
+                    <div class="auth-brand">
+                        <div class="auth-logo">
+                            <img class="auth-logo-img" src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Komektes.kz">
+                        </div>
+                        <div class="auth-brand-text">
+                            <div class="auth-brand-title">Komektes.kz</div>
+                            <div class="auth-brand-slogan">{% t "Еріктілер платформасы" "Платформа волонтёров" %}</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-black">{% t "Кіру" "Войти" %}</button>
+
+                    <p class="switch-text">
+                        {% t "Аккаунтыңыз жоқ па?" "Нет аккаунта?" %} <span onclick="toggleAuth()">{% t "Тіркелу" "Регистрация" %}</span>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleAuth() {
+            const regForm = document.getElementById('registerForm');
+            const loginForm = document.getElementById('loginForm');
+
+            // Просто меняем классы видимости
+            if (regForm.classList.contains('hidden')) {
+                regForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            } else {
+                regForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        }
+
+        const allowedKzCodes = new Set(['700', '701', '702', '705', '706', '707', '708', '747', '771', '775', '776', '777', '778']);
+
+        function formatKzPhoneDigits(digits10) {
+            const d = (digits10 || '').replace(/\D/g, '').slice(0, 10);
+            if (!d) return '';
+            let out = '';
+            for (let i = 0; i < d.length; i++) {
+                out += d[i];
+                if (i === 2 && d.length > 3) out += '-';
+                if (i === 5 && d.length > 6) out += '-';
+                if (i === 7 && d.length > 8) out += '-';
+            }
+            return out;
+        }
+
+        function getDigits10FromValue(value) {
+            const raw = ((value || '') + '').replace(/\D/g, '');
+            if (!raw) return '';
+            let digits = raw;
+            if (digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
+                digits = digits.slice(1);
+            }
+            return digits.slice(0, 10);
+        }
+
+        const msgPhoneError = "{% t 'Телефон қате' 'Неверный формат телефона' %}";
+        const msgOperatorError = "{% t 'Қазақстан операторының коды қате (мысалы: 747, 701, 777)' 'Неверный код оператора Казахстана (например: 747, 701, 777)' %}";
+        const msgFullNumberRequired = "{% t 'Нөмірді толық енгізіңіз' 'Введите номер телефона полностью' %}";
+
+        function validateKzPhoneDigits10(digits10) {
+            const d = (digits10 || '').replace(/\D/g, '');
+            if (!d) return { valid: true, message: '' };
+            if (d.length < 10) return { valid: true, message: '' };
+            if (d.length > 10) return { valid: false, message: msgPhoneError };
+            const code = d.slice(0, 3);
+            if (!allowedKzCodes.has(code)) {
+                return { valid: false, message: msgOperatorError };
+            }
+            return { valid: true, message: '' };
+        }
+
+        document.querySelectorAll('input[name="phone_number"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                const digits10 = getDigits10FromValue(input.value);
+                if (!digits10) {
+                    input.value = '';
+                    input.setCustomValidity('');
+                    return;
+                }
+                const formatted = formatKzPhoneDigits(digits10);
+                input.value = formatted;
+                input.setSelectionRange(formatted.length, formatted.length);
+                const { valid, message } = validateKzPhoneDigits10(digits10);
+                input.setCustomValidity(valid ? '' : message);
+            });
+            input.addEventListener('blur', () => {
+                const digits10 = getDigits10FromValue(input.value);
+                if (!digits10) {
+                    input.value = '';
+                    input.setCustomValidity('');
+                    return;
+                }
+                input.value = formatKzPhoneDigits(digits10);
+                if (digits10.length < 10) {
+                    input.setCustomValidity(msgFullNumberRequired);
+                    return;
+                }
+                const { valid, message } = validateKzPhoneDigits10(digits10);
+                input.setCustomValidity(valid ? '' : message);
+            });
+        });
+
+        document.querySelectorAll('.password-toggle[data-toggle="password"]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const wrapper = btn.closest('.password-field');
+                const input = wrapper ? wrapper.querySelector('input') : null;
+                const icon = btn.querySelector('i');
+                if (!input) return;
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                if (icon) {
+                    icon.classList.toggle('fa-eye', !isPassword);
+                    icon.classList.toggle('fa-eye-slash', isPassword);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

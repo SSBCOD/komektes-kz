@@ -1,0 +1,530 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Жеке кабинет" "Личный кабинет" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051602">
+    <style>
+        /* Smooth transitions for tab switching */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form elements styled to match admin aesthetic */
+        .admin-form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-form-group label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .admin-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #334155;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .admin-input:focus {
+            outline: none;
+            border-color: #7B61FF;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #7B61FF 0%, #6140FF 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(123, 97, 255, 0.2);
+        }
+
+        /* Responsive Split for Forms & Tables */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% with request.GET.tab|default:'newsSection' as current_tab %}
+
+    <div class="admin-wrapper">
+
+        <!-- Unified Sidebar Shell -->
+        <aside class="sidebar" id="sidebar">
+
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo"
+                        class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Клиент мәзірі" "Меню клиента" %}</p>
+
+                <a href="?tab=newsSection" data-section="newsSection" class="menu-item{% if current_tab == 'newsSection' %} active{% endif %}">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+                
+                <a href="?tab=askHelpSection" data-section="askHelpSection" class="menu-item{% if current_tab == 'askHelpSection' %} active{% endif %}">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span class="link-text">{% t "Көмек сұрау" "Запросить помощь" %}</span>
+                </a>
+
+                <a href="?tab=becomeVolunteerSection" data-section="becomeVolunteerSection" class="menu-item{% if current_tab == 'becomeVolunteerSection' %} active{% endif %}">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болу" "Стать волонтёром" %}</span>
+                </a>
+
+                <a href="?tab=profileSection" data-section="profileSection" class="menu-item{% if current_tab == 'profileSection' %} active{% endif %}">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="link-text">{% t "Профиль" "Профиль" %}</span>
+                </a>
+
+
+
+                <div class="spacer"></div>
+
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+
+            <!-- Universal Top Bar -->
+            <header class="top-bar">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="{% t 'Ақпарат іздеу...' 'Поиск...' %}">
+                </div>
+
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+
+                <div class="top-profile">
+                    <!-- Dynamic Django Profile -->
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{% t "Пайдаланушы" "Пользователь" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+
+                <!-- MAIN NEWS SECTION (Default) -->
+                <section id="newsSection" class="content-section{% if current_tab == 'newsSection' %} active{% endif %}">
+                    
+                    <div class="page-header">
+                        <h1>{% t "Қош келдіңіз," "Добро пожаловать," %} {{ user.get_full_name|default:user.username }}!</h1>
+                        <p>{% t "Осы аптада еріктілеріміз қол жеткізген нәтижелермен танысыңыз." "Ознакомьтесь с результатами работы волонтёров за эту неделю." %}</p>
+                    </div>
+
+                    <!-- Adapted Banner Stats using admin.css stats-grid -->
+                    <div class="stats-grid" style="margin-bottom: 30px;">
+                        <div class="stat-card">
+                            <div class="stat-icon green-bg"><i class="fas fa-hands-helping"></i></div>
+                            <div class="stat-details">
+                                <h3>{% t "Менің өтінімдерім" "Мои заявки" %}</h3>
+                                <p class="number">{{ total_requests|default:"0" }}</p>
+                                <span class="trend positive">{% t "Жалпы саны" "Всего" %}</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon blue-bg"><i class="fas fa-user-plus"></i></div>
+                            <div class="stat-details">
+                                <h3>{% t "Күтудегі өтінімдер" "Заявки в ожидании" %}</h3>
+                                <p class="number">{{ pending_requests_count|default:"0" }}</p>
+                                <span class="trend positive">{% t "Қаралуда" "На рассмотрении" %}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-header" style="margin-bottom: 20px;">
+                        <h2>{% t "Еріктілер жаңалықтары" "Новости волонтёров" %}</h2>
+                    </div>
+
+                    <!-- Refactored News Grid using dashboard-card variants -->
+                    <div class="split-layout">
+                        {% for post in latest_news %}
+                        <div class="dashboard-card" style="display: flex; gap: 20px; align-items: center;">
+                            <div class="stat-icon blue-bg" style="width: 60px; height: 60px; border-radius: 12px; font-size: 24px; flex-shrink: 0;"><i class="fas fa-bullhorn"></i></div>
+                            <div>
+                                <span style="font-size: 12px; color: #a0aec0; font-weight: 500;">{{ post.published_at|date:"d.m.Y" }}</span>
+                                <h3 style="margin: 5px 0; font-size: 16px; color: #334155;">{% t post.title_kk post.title_ru %}</h3>
+                                <p style="margin: 0; font-size: 13px; color: #64748b;">
+                                    {% if request.COOKIES.ui_lang == 'ru' and post.body_ru %}
+                                        {{ post.body_ru|truncatechars:120 }}
+                                    {% else %}
+                                        {{ post.body_kk|truncatechars:120 }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="dashboard-card" style="padding: 18px; color: #64748b;">
+                            {% t "Әзірге жаңалықтар жоқ. Оларды әкімші жариялайды." "Пока нет новостей. Их публикует администратор." %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+
+                <!-- ASK HELP SECTION -->
+                <section id="askHelpSection" class="content-section{% if current_tab == 'askHelpSection' %} active{% endif %}">
+                    
+                    <div class="page-header">
+                        <h1>{% t "Көмек және қолдау" "Помощь и поддержка" %}</h1>
+                        <p>{% t "Өтінім қалдырыңыз, еріктілеріміз сізбен байланысады." "Оставьте заявку — наши волонтёры свяжутся с вами." %}</p>
+                    </div>
+
+                    <div class="split-layout">
+                        
+                        <!-- Form Card (Sleek Admin Style) -->
+                        <div class="dashboard-card">
+                            <div class="card-header" style="margin-bottom: 20px;">
+                                <h3>{% t "Маған көмек керек" "Мне нужна помощь" %}</h3>
+                            </div>
+                            
+                            <form method="POST" action="?tab=askHelpSection">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="help_request">
+                                
+                                <div class="admin-form-group">
+                                    <label>{% t "Санат" "Категория" %}</label>
+                                    <select class="admin-input" name="category" required>
+                                        <option value="Food">{% t "Азық-түлік" "Продукты" %}</option>
+                                        <option value="Medicine">{% t "Дәрі-дәрмек" "Лекарства" %}</option>
+                                        <option value="Cleaning">{% t "Қар/аула тазалау" "Уборка снега/двора" %}</option>
+                                        <option value="Financial">{% t "Қаржылай көмек" "Финансовая помощь" %}</option>
+                                        <option value="Other">{% t "Басқа" "Другое" %}</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Мекенжай" "Адрес" %}</label>
+                                    <input type="text" class="admin-input" name="address" placeholder="{% t "Мысалы: Алматы қ., Бостандық ауд., ..." "Например: г. Алматы, Бостандыкский р-н, ..." %}" maxlength="255" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Жағдай сипаттамасы" "Описание ситуации" %}</label>
+                                    <textarea class="admin-input" rows="4" name="description" placeholder="{% t "Не болғанын және қандай көмек қажет екенін жазыңыз..." "Опишите, что случилось и какая помощь нужна..." %}" maxlength="1000" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn-primary">{% t "Өтінімді жіберу" "Отправить заявку" %}</button>
+                            </form>
+                        </div>
+
+                        <!-- My Requests History (Admin Mini-Table Style) -->
+                        <div class="dashboard-card table-card">
+                            <div class="card-header">
+                                <h3>{% t "Менің өтінімдерім" "Мои заявки" %}</h3>
+                            </div>
+
+                            <table class="mini-table">
+                                <thead>
+                                    <tr>
+                                        <th>{% t "Санат" "Категория" %}</th>
+                                        <th>{% t "Күні" "Дата" %}</th>
+                                        <th>{% t "Мәртебе" "Статус" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for req in help_requests %}
+                                    <tr class="req-row" data-search="{% tc req.get_category_display|default:req.category %}">
+                                        <td style="font-weight: 500; color: #334155;">{% tc req.get_category_display|default:req.category %}</td>
+                                        <td style="color: #64748b; font-size: 13px;">{{ req.created_at|date:"d M Y" }}</td>
+                                        <td>
+                                            {% if req.status == 'Pending' %}
+                                                <span class="status-tag pending">{% t "Күтуде" "В ожидании" %}</span>
+                                            {% elif req.status == 'Completed' %}
+                                                <span class="status-tag success">{% t "Орындалды" "Выполнено" %}</span>
+                                            {% else %}
+                                                <span class="status-tag process">{% tc req.status %}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; color: #a0aec0; padding: 20px;">{% t "Әзірге өтінімдеріңіз жоқ." "Пока у вас нет заявок." %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </section>
+
+
+                <!-- BECOME VOLUNTEER SECTION -->
+                <section id="becomeVolunteerSection" class="content-section{% if current_tab == 'becomeVolunteerSection' %} active{% endif %}">
+                    
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, #7B61FF 0%, #6140FF 100%); color: white; display: flex; justify-content: space-between; align-items: center; padding: 40px; margin-bottom: 24px;">
+                        <div>
+                            <h2 style="color: white; margin-bottom: 10px; font-size: 24px;">{% t "Команданың бір бөлігі болғыңыз келе ме?" "Хотите стать частью команды?" %}</h2>
+                            <p style="opacity: 0.9; margin: 0;">{% t "Басқаларға көмектесу арқылы әлемді жақсартамыз. Сауалнаманы толтырыңыз." "Мы делаем мир лучше, помогая другим. Заполните анкету." %}</p>
+                        </div>
+                        <i class="fas fa-hands-helping" style="font-size: 60px; opacity: 0.2;"></i>
+                    </div>
+
+                    <div class="dashboard-card" style="max-width: 800px; margin: 0 auto;">
+                        <div class="card-header" style="margin-bottom: 20px;">
+                            <h3>{% t "Еріктінің сауалнамасы" "Анкета волонтёра" %}</h3>
+                        </div>
+                        {% if latest_application %}
+                        <div style="margin-bottom: 16px; color: #64748b; font-size: 14px;">
+                                {% t "Соңғы өтінім мәртебесі:" "Статус последней заявки:" %} <strong>{{ latest_application.get_status_display|default:latest_application.status }}</strong>
+                            </div>
+                        {% endif %}
+                        <form method="POST" action="/client-dashboard/">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="volunteer_application">
+                            <div class="split-layout" style="margin-bottom: 20px;">
+                                <div class="admin-form-group" style="margin-bottom: 0;">
+                                    <label>{% t "Дағдыларыңыз" "Ваши навыки" %}</label>
+                                    <input type="text" class="admin-input" name="skills" placeholder="{% t "Мысалы: жүргізу, медицина, жөндеу..." "Например: вождение, медицина, ремонт..." %}" maxlength="255" required>
+                                </div>
+                                <div class="admin-form-group" style="margin-bottom: 0;">
+                                    <label>{% t "Қала" "Город" %}</label>
+                                    <input type="text" class="admin-input" name="city" value="{{ user.city|default:'' }}" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="admin-form-group">
+                                <label>{% t "Неліктен ерікті болғыңыз келеді?" "Почему вы хотите стать волонтёром?" %}</label>
+                                <textarea class="admin-input" rows="3" name="motivation_reason" placeholder="{% t "Өзіңіз туралы қысқаша жазыңыз..." "Коротко расскажите о себе..." %}" maxlength="1000" required></textarea>
+                            </div>
+                            <div class="admin-form-group checkbox-group">
+                                <input type="checkbox" id="car" name="has_personal_car" value="on">
+                                <label for="car">{% t "Жеке көлігім бар" "Есть личный автомобиль" %}</label>
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-top: 10px;">{% t "Сауалнаманы жіберу" "Отправить анкету" %}</button>
+                        </form>
+                    </div>
+
+                </section>
+
+
+                <!-- PROFILE SECTION -->
+                <section id="profileSection" class="content-section{% if current_tab == 'profileSection' %} active{% endif %}">
+                    <div class="page-header">
+                        <h1>{% t "Менің профилім" "Мой профиль" %}</h1>
+                        <p>{% t "Жеке деректеріңізді жаңартыңыз." "Обновите свои личные данные." %}</p>
+                    </div>
+
+                    <div class="split-layout">
+                        <!-- Profile Info Card -->
+                        <div class="dashboard-card" style="text-align: center; padding: 30px;">
+                            <div class="admin-avatar" style="width: 80px; height: 80px; font-size: 32px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
+                                {{ user.get_full_name|default:user.username|make_list|first|upper }}
+                            </div>
+                            <h2 style="margin-bottom: 5px; color: #1e293b;">{{ user.get_full_name|default:user.username }}</h2>
+                            <p style="color: #64748b; margin-bottom: 20px;"><i class="fas fa-map-marker-alt"></i> {{ user.city|default:"—" }}, {% t "Қазақстан" "Казахстан" %}</p>
+
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                                    <span style="color: #64748b; font-size: 14px;">{% t "Телефон" "Телефон" %}</span>
+                                    <span style="font-weight: 500; color: #334155;">{{ user.phone_number|default:"—" }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b; font-size: 14px;">{% t "Мәртебе" "Роль" %}</span>
+                                    <span class="status-tag process">{{ user.get_role_display|default:user.role }}</span>
+                                </div>
+                            </div>
+
+                            <a href="{% url 'logout' %}" class="btn-danger" style="display: inline-block; padding: 10px 28px; border-radius: 10px; text-decoration: none;">{% t "Шығу" "Выйти" %}</a>
+                        </div>
+
+                        <!-- Edit Profile Form Card -->
+                        <div class="dashboard-card">
+                            <div class="card-header" style="margin-bottom: 20px;">
+                                <h3>{% t "Профильді өңдеу" "Редактировать профиль" %}</h3>
+                            </div>
+                            <form method="POST" action="{% url 'edit_volunteer_profile' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="/client-dashboard/?tab=profileSection">
+                                <div class="admin-form-group">
+                                    <label>{% t "Тегі" "Фамилия" %}</label>
+                                    <input type="text" class="admin-input" name="last_name" value="{{ user.last_name }}" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Аты" "Имя" %}</label>
+                                    <input type="text" class="admin-input" name="first_name" value="{{ user.first_name }}" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Әкесінің аты" "Отчество" %}</label>
+                                    <input type="text" class="admin-input" name="middle_name" value="{{ user.middle_name|default:'' }}">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Телефон нөмірі" "Номер телефона" %}</label>
+                                    <input type="text" class="admin-input" name="phone_number" value="{{ user.phone_number|default:'' }}" placeholder="+77001234567" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>{% t "Қала" "Город" %}</label>
+                                    <input type="text" class="admin-input" name="city" value="{{ user.city|default:'' }}">
+                                </div>
+                                <button type="submit" class="btn-primary">{% t "Өзгерістерді сақтау" "Сохранить изменения" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JS Logic specific to this layout -->
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+
+            if (sidebar.classList.contains('close')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        function showSection(sectionId, element, updateUrl = true) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            section.classList.add('active');
+
+            // Remove active style from all sidebar items
+            const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+            menuItems.forEach(item => item.classList.remove('active'));
+
+            // Add active style to clicked item
+            if (element) {
+                element.classList.add('active');
+            }
+
+            if (updateUrl) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', sectionId);
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
+
+        document.querySelectorAll('.sidebar-menu .menu-item[data-section]').forEach((item) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(item.dataset.section, item);
+            });
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab') || 'newsSection';
+        const tabLink = document.querySelector(`.sidebar-menu .menu-item[data-section="${tab}"]`);
+        showSection(tab, tabLink, false);
+
+        // Search Filter for Client Requests
+        const searchInput = document.querySelector('.search-box input');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.toLowerCase();
+                document.querySelectorAll('.req-row').forEach(row => {
+                    const searchData = (row.dataset.search || '').toLowerCase();
+                    row.style.display = searchData.includes(q) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
+
+{% endwith %}

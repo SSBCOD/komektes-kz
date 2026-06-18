@@ -1,0 +1,454 @@
+{% load static %}
+{% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051701">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051701">
+    <style>
+        /* Create Task Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.45);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 64px rgba(15,23,42,0.18);
+            position: relative;
+        }
+        .modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: #1e293b; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input {
+            height: 40px; padding: 0 14px;
+            border: 1px solid #e2e8f0; border-radius: 10px;
+            font-family: inherit; font-size: 13px; color: #334155;
+            background: #f8fafc; transition: border-color 0.2s;
+            width: 100%;
+        }
+        .form-input:focus { outline: none; border-color: #7B61FF; background: #fff; }
+        textarea.form-input { height: 80px; padding: 10px 14px; resize: vertical; }
+        .btn-create-task {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #22c55e, #14b8a6);
+            color: white; border: none; padding: 11px 22px;
+            border-radius: 12px; font-family: inherit; font-weight: 600;
+            font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(34,197,94,0.25);
+        }
+        .btn-create-task:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(34,197,94,0.35); }
+        .btn-modal-submit {
+            width: 100%; background: linear-gradient(135deg, #7B61FF, #6140FF);
+            color: white; border: none; padding: 13px;
+            border-radius: 12px; font-family: inherit; font-weight: 600;
+            font-size: 14px; cursor: pointer; margin-top: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-modal-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(123,97,255,0.3); }
+        .btn-modal-close {
+            position: absolute; top: 16px; right: 16px;
+            background: #f1f5f9; border: none; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; font-size: 16px; color: #64748b;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-action.danger { background: #fde8e8; color: #9b1c1c; border: none; }
+        .btn-action.danger:hover { background: #fca5a5; }
+        
+        .messages-list { margin-bottom: 20px; }
+        .msg-item {
+            padding: 12px 16px; border-radius: 10px; font-size: 13px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+        }
+        .msg-item.success { background: #dcfce7; color: #166534; }
+        .msg-item.error { background: #fde8e8; color: #9b1c1c; }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-wrapper">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo"
+                        class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Мәзір" "Меню" %}</p>
+
+                <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+                <a href="{% url 'admin_clients' %}" class="menu-item">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span class="link-text">{% t "Клиент өтінімдері" "Заявки клиентов" %}</span>
+                    <span class="badge">{{ pending_requests|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_volunteers' %}" class="menu-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</span>
+                    <span class="badge" style="background: #7B61FF;">{{ pending_volunteers|default:"0" }}</span>
+                </a>
+
+                <a href="{% url 'admin_tasks' %}" class="menu-item active">
+                    <i class="fas fa-tasks"></i>
+                    <span class="link-text">{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</span>
+                </a>
+
+                <a href="{% url 'admin_analytics' %}" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="link-text">{% t "Талдау" "Аналитика" %}</span>
+                </a>
+
+                <a href="{% url 'admin_news' %}" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Жаңалықтар" "Новости" %}</span>
+                </a>
+
+                <a href="{% url 'admin_users' %}" class="menu-item">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="link-text">{% t "Пайдаланушылар" "Пользователи" %}</span>
+                </a>
+
+                <div class="spacer"></div>
+
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+
+            <header class="top-bar compact-header">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="{% t 'Еріктіні немесе тапсырманы іздеу...' 'Поиск волонтера или задачи...' %}" oninput="filterTable()">
+                </div>
+
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+
+                <div class="top-profile">
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{% t "Әкімші" "Администратор" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+
+                {% if messages %}
+                <div class="messages-list">
+                    {% for message in messages %}
+                    <div class="msg-item {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h1>{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</h1>
+                        <p>{% t "Тапсырмаларды басқару және еріктілерге тағайындау" "Управление задачами и назначение волонтёров" %}</p>
+                    </div>
+                    <button class="btn-create-task" onclick="document.getElementById('createTaskModal').classList.add('open')">
+                        <i class="fas fa-plus"></i>
+                        {% t "Тапсырма жасау" "Создать задачу" %}
+                    </button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">{% t "Барлық тапсырмалар" "Все задачи" %}</button>
+                    <button class="filter-btn" data-filter="process">{% t "Орындалуда" "В работе" %} <span class="counter">{{ in_progress_count }}</span></button>
+                    <button class="filter-btn" data-filter="scheduled">{% t "Жоспарланды" "Запланировано" %}</button>
+                    <button class="filter-btn" data-filter="completed">{% t "Аяқталды" "Выполнено" %}</button>
+                </div>
+
+                <div class="dashboard-card table-card full-width">
+                    <table class="full-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>{% t "Ерікті" "Волонтер" %}</th>
+                                <th>{% t "Тәжірибе" "Опыт" %}</th>
+                                <th>{% t "Клиент" "Клиент" %}</th>
+                                <th>{% t "Тапсырма" "Задача" %}</th>
+                                <th>{% t "Күні" "Дата" %}</th>
+                                <th>{% t "Мәртебе" "Статус" %}</th>
+                                <th>{% t "Әрекеттер" "Действия" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+
+                            {% for task in tasks %}
+                            <tr data-status="{% if task.status == 'Completed' %}completed{% elif task.status == 'In-Progress' %}process{% else %}scheduled{% endif %}" data-search="{{ task.title|lower }} {% if task.assigned_volunteer %}{{ task.assigned_volunteer.get_full_name|default:task.assigned_volunteer.username|lower }}{% endif %}">
+                                <td>#T-{{ task.id }}</td>
+                                <td>
+                                    {% if task.assigned_volunteer %}
+                                    <div class="user-info">
+                                        <div class="avatar-circle" style="background: #e0f2fe; color: #0284c7;">
+                                            {{ task.assigned_volunteer.get_full_name|default:task.assigned_volunteer.username|make_list|first|upper }}
+                                        </div>
+                                        <div class="user-text">
+                                            <span class="name">{{ task.assigned_volunteer.get_full_name|default:task.assigned_volunteer.username }}</span>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <form method="POST" action="{% url 'admin_tasks' %}" style="display: inline-flex; gap: 6px; align-items: center;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="assign_volunteer">
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <select name="volunteer_id" required style="height: 32px; padding: 0 6px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; max-width: 140px; background: #fff; color: #334155;">
+                                            <option value="">-- {% t "Еріктіні таңдау" "Выбрать волонтёра" %} --</option>
+                                            {% for vol in volunteers %}
+                                                <option value="{{ vol.id }}">{{ vol.get_full_name|default:vol.username }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn-action accept" style="height: 32px; width: 32px; display: inline-flex; align-items: center; justify-content: center;" title="{% t 'Тағайындау' 'Назначить' %}">
+                                            <i class="fas fa-user-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if task.assigned_volunteer %}
+                                    <div class="rating-badge good" title="{% t 'Волонтердің тәжірибесі' 'Опыт волонтёра' %}">
+                                        <i class="fas fa-clock"></i> {{ task.assigned_volunteer.total_hours }} {% t "сағ" "ч" %}
+                                    </div>
+                                    {% else %}
+                                    —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if task.help_request %}
+                                        <div class="user-info">
+                                            <div class="avatar-circle">{{ task.help_request.client.get_full_name|default:task.help_request.client.username|make_list|first|upper }}</div>
+                                            <span>{{ task.help_request.client.get_full_name|default:task.help_request.client.username }}</span>
+                                        </div>
+                                    {% else %}
+                                        <span style="color: #94a3b8; font-size: 12px;">{% t "Тікелей тапсырма" "Прямая задача" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong style="font-size: 13px;">{{ task.title }}</strong>
+                                        {% if task.address %}
+                                            <p style="font-size: 11px; color: #94a3b8; margin: 2px 0 0 0;"><i class="fas fa-map-marker-alt"></i> {{ task.address|truncatechars:30 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td style="font-size: 13px; color: #64748b;">
+                                    {{ task.date|date:"d.m.Y" }}<br>
+                                    <span style="font-size: 11px;">{{ task.time|time:"H:i" }} • {{ task.duration }}{% t "ч" "ч" %}</span>
+                                </td>
+                                <td>
+                                    {% if task.status == 'Completed' %}
+                                        <span class="status-tag success">{% t "Аяқталды" "Выполнено" %}</span>
+                                    {% elif task.status == 'In-Progress' %}
+                                        <span class="status-tag process">{% t "Орындалуда" "В работе" %}</span>
+                                    {% else %}
+                                        <span class="status-tag" style="background: #fef3c7; color: #d97706;">{% t "Жоспарланды" "Запланировано" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        {% if task.status != 'Completed' %}
+                                        <form method="POST" action="{% url 'admin_tasks' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="complete">
+                                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                                            <button type="submit" class="btn-action accept" title="{% t 'Аяқтау' 'Завершить' %}"><i class="fas fa-check"></i></button>
+                                        </form>
+                                        {% else %}
+                                        <span style="color: #10b981; font-size: 14px;"><i class="fas fa-check-double"></i></span>
+                                        {% endif %}
+                                        <form method="POST" action="{% url 'admin_tasks' %}" style="display:inline;" onsubmit="return confirm('{% t 'Тапсырманы жою?' 'Удалить задачу?' %}')">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_task">
+                                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                                            <button type="submit" class="btn-action danger" title="{% t 'Жою' 'Удалить' %}"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; color: #64748b; padding: 40px 20px;">
+                                    <i class="fas fa-inbox" style="font-size: 32px; color: #e2e8f0; display: block; margin-bottom: 12px;"></i>
+                                    {% t "Тапсырмалар әлі жоқ. Жоғарыдан тапсырма жасаңыз." "Задач пока нет. Создайте задачу выше." %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div class="modal-overlay" id="createTaskModal" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="modal-box">
+            <button class="btn-modal-close" onclick="document.getElementById('createTaskModal').classList.remove('open')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>{% t "Жаңа тапсырма жасау" "Создать новую задачу" %}</h3>
+            <form method="POST" action="{% url 'admin_tasks' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_task">
+
+                <div class="form-group">
+                    <label>{% t "Тапсырма атауы *" "Название задачи *" %}</label>
+                    <input type="text" name="title" class="form-input" placeholder="{% t 'Мысалы: Азық-түлік жеткізу' 'Например: Доставка продуктов' %}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>{% t "Санат" "Категория" %}</label>
+                        <select name="category" class="form-input">
+                            <option value="">-- {% t "Санат" "Категория" %} --</option>
+                            <option value="Food">{% t "Азық-түлік" "Продукты" %}</option>
+                            <option value="Medicine">{% t "Дәрі-дәрмек" "Лекарства" %}</option>
+                            <option value="Cleaning">{% t "Тазалау" "Уборка" %}</option>
+                            <option value="Financial">{% t "Қаржылай" "Финансовая" %}</option>
+                            <option value="Other">{% t "Басқа" "Другое" %}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>{% t "Ұзақтығы (сағ)" "Длительность (ч)" %}</label>
+                        <input type="number" name="duration" class="form-input" value="2" min="1" max="24">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label>{% t "Мекенжай" "Адрес" %}</label>
+                    <input type="text" name="address" class="form-input" placeholder="{% t 'Қала, көше...' 'Город, улица...' %}">
+                </div>
+
+                <div class="form-group">
+                    <label>{% t "Сипаттама" "Описание" %}</label>
+                    <textarea name="description" class="form-input" placeholder="{% t 'Тапсырма туралы қысқаша...' 'Коротко о задаче...' %}"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>{% t "Күні" "Дата" %}</label>
+                        <input type="date" name="date" class="form-input" value="{{ default_task_date }}">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>{% t "Уақыты" "Время" %}</label>
+                        <input type="time" name="time" class="form-input" value="{{ default_task_time }}">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label>{% t "Еріктіні тағайындау (міндетті емес)" "Назначить волонтёра (необязательно)" %}</label>
+                    <select name="assigned_volunteer" class="form-input">
+                        <option value="">-- {% t "Жариялау (еріктілер таңдайды)" "Опубликовать (волонтёры сами возьмут)" %} --</option>
+                        {% for vol in volunteers %}
+                            <option value="{{ vol.id }}">{{ vol.get_full_name|default:vol.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-modal-submit">
+                    <i class="fas fa-plus"></i> {% t "Тапсырма жасау" "Создать задачу" %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+            if (sidebar.classList.contains('close')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // Filter tabs
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const tableRows = document.querySelectorAll('#tableBody tr');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const filterValue = button.getAttribute('data-filter');
+                tableRows.forEach(row => {
+                    const rowStatus = row.getAttribute('data-status');
+                    if (filterValue === 'all' || filterValue === rowStatus) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            tableRows.forEach(row => {
+                const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+                row.style.display = searchData.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+
+</html>

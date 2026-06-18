@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load ui_lang %}
+
+{% block title %}Komektes.kz — {% t "Еріктілер платформасы" "Платформа волонтёров" %}{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="bg-blob blue-blob"></div>
+    <div class="bg-blob orange-blob"></div>
+
+    <div class="hero-content">
+        <h1>{% t "МЕН МҰҚТАЖ ЖАНДАРҒА <br> КӨМЕКТЕСЕ ОТЫРЫП ӨСЕМІН." "Я РАСТУ, ПОМОГАЯ <br> ТЕМ, КТО НУЖДАЕТСЯ." %}</h1>
+
+        <form class="search-bar" id="searchForm" action="{% url 'news' %}" method="GET">
+            <input type="text" name="q" placeholder="{% t 'Ізгі істер мен жаңалықтарды іздеу...' 'Поиск добрых дел и новостей...' %}" required>
+            <button type="submit">{% t "Іздеу" "Найти" %}</button>
+        </form>
+
+        <p class="search-hint" style="margin-top: 20px; font-size: 14.5px; color: #64748b; font-family: 'Poppins', sans-serif; line-height: 1.5; opacity: 0.95;">
+            {% t "Игі істерді, еріктілер жобаларын немесе жаңалықтарды іздеңіз. <br>Мысалы: <i>азық-түлік жеткізу, жануарлар баспанасы, қарттарға көмек</i>" "Ищите добрые дела, волонтёрские проекты или новости. <br>Например: <i>доставка продуктов, приют для животных, помощь пожилым</i>" %}
+        </p>
+
+        <div class="decorative-dot"></div>
+    </div>
+</section>
+{% endblock %}

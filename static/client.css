@@ -1,0 +1,280 @@
+/* client.css - Единый стиль для всех страниц */
+:root {
+    --primary: #7B61FF;
+    --primary-dark: #6a51e0;
+    --text-dark: #2d3748;
+    --text-light: #718096;
+    --bg-light: #f8f9fe;
+    --white: #ffffff;
+    --danger: #e53e3e;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- ШАПКА (NAVBAR) --- */
+.navbar {
+    background: var(--white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.logo img {
+    height: 35px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--text-dark);
+    transition: 0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--primary);
+}
+
+.nav-btn {
+    background: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* --- ГЛАВНАЯ (HERO) --- */
+.hero-section {
+    background: white;
+    padding: 80px 0;
+    display: flex;
+    align-items: center;
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.hero-text p {
+    font-size: 18px;
+    color: var(--text-light);
+    margin-bottom: 30px;
+    max-width: 500px;
+}
+
+/* --- НОВОСТИ (СЕТКА) --- */
+.news-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /* Контент слева, Сайдбар справа */
+    gap: 40px;
+    padding: 40px 0;
+}
+
+.news-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    margin-bottom: 30px;
+    transition: transform 0.3s;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+}
+
+.news-img {
+    height: 250px;
+    background-size: cover;
+    background-position: center;
+    background-color: #eee;
+}
+
+.news-content {
+    padding: 25px;
+}
+
+.news-meta {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.news-content h2 {
+    margin: 0 0 15px 0;
+    font-size: 22px;
+}
+
+.news-content p {
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.read-more {
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+/* САЙДБАР НОВОСТЕЙ */
+.sidebar-widget {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.widget-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary);
+    padding-left: 10px;
+}
+
+.mini-news-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.mini-news-item:last-child {
+    border: none;
+}
+
+.mini-news-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+}
+
+.mini-news-item span {
+    font-size: 11px;
+    color: #aaa;
+}
+
+/* --- ФОРМЫ (ЗАЯВКИ) --- */
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-family: 'Poppins';
+    box-sizing: border-box;
+    /* Важно! */
+}
+
+.form-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.btn-submit {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.error-msg {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* --- FOOTER --- */
+footer {
+    background: #1a202c;
+    color: white;
+    padding: 50px 0;
+    margin-top: auto;
+}

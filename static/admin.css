@@ -1,0 +1,1355 @@
+/* --- ОСНОВНЫЕ НАСТРОЙКИ --- */
+:root {
+    --sidebar-width: 290px;
+    --sidebar-width-close: 80px;
+    /* Ширина закрытого меню */
+    --card-radius: var(--radius-lg);
+    --transition-speed: 0.3s ease;
+}
+
+/* ВАЖНО: Это исправляет проблему с расчетами размеров */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--color-bg);
+    margin: 0;
+    color: var(--color-text);
+}
+
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- 1. SIDEBAR (Левое меню) --- */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--color-surface);
+    padding: 25px 15px;
+    /* Уменьшил боковые отступы */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    border-right: 1px solid var(--color-border);
+    z-index: 100;
+    transition: width var(--transition-speed);
+    /* Анимация ширины */
+}
+
+/* СТИЛИ ДЛЯ ЗАКРЫТОГО МЕНЮ */
+.sidebar.close {
+    width: var(--sidebar-width-close);
+    padding: 25px 10px;
+}
+
+.sidebar.close .logo-text,
+.sidebar.close .menu-label,
+.sidebar.close .link-text,
+.sidebar.close .badge {
+    display: none;
+    /* Скрываем текст */
+}
+
+.sidebar.close .logo-area {
+    justify-content: center;
+}
+
+.sidebar.close .menu-item {
+    justify-content: center;
+    padding: 14px 0;
+}
+
+/* КНОПКА СТРЕЛКИ (TOGGLE) */
+.toggle-btn {
+    position: absolute;
+    top: 30px;
+    right: -15px;
+    /* Выступает за пределы меню */
+    width: 30px;
+    height: 30px;
+    background: var(--active-btn-end);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.toggle-btn:hover {
+    background: var(--active-btn-start);
+}
+
+/* ХЕДЕР МЕНЮ */
+.sidebar-header {
+    margin-bottom: 40px;
+    white-space: nowrap;
+    /* Чтобы текст не прыгал */
+    overflow: hidden;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+}
+
+.logo-img {
+    width: 35px;
+    min-width: 35px;
+    /* Чтобы лого не сжималось */
+}
+
+.logo-area h2 {
+    font-size: 20px;
+    font-weight: 700;
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.menu-label {
+    font-size: 12px;
+    color: rgba(100, 116, 139, 0.9);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-left: 10px;
+    white-space: nowrap;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 18px;
+    color: var(--color-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    /* Текст в одну строку */
+}
+
+.menu-item i {
+    font-size: 18px;
+    min-width: 25px;
+    /* Фиксированная ширина для иконок */
+    text-align: center;
+}
+
+.menu-item:hover {
+    background-color: rgba(79, 172, 254, 0.12);
+    color: var(--color-text);
+}
+
+.menu-item.active {
+    background: rgba(123, 97, 255, 0.14);
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.menu-item.active i {
+    color: var(--active-btn-start);
+}
+
+.badge {
+    margin-left: auto;
+    background: var(--color-danger);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.logout {
+    color: var(--color-danger);
+}
+
+.logout:hover {
+    background: rgba(239, 68, 68, 0.10);
+    color: var(--color-danger);
+}
+
+
+/* --- 2. MAIN CONTENT (Правая часть) --- */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 30px;
+    width: calc(100% - var(--sidebar-width));
+    /* ВАЖНО для фикса перекрытия */
+    transition: margin-left var(--transition-speed), width var(--transition-speed);
+}
+
+/* Когда меню закрыто, контент расширяется */
+.main-content.active {
+    margin-left: var(--sidebar-width-close);
+    width: calc(100% - var(--sidebar-width-close));
+}
+
+/* Верхняя шапка */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.mobile-menu-btn {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--color-text);
+    box-shadow: var(--shadow-sm);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.mobile-menu-btn:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.search-box {
+    background: var(--color-surface);
+    padding: 12px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 300px;
+    box-shadow: var(--shadow-sm);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    font-family: 'Poppins';
+    width: 100%;
+    font-size: 14px;
+}
+
+.top-profile {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.notif-icon {
+    position: relative;
+    font-size: 20px;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-danger);
+    border-radius: 50%;
+    border: 2px solid var(--color-bg);
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--brand-gradient);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* --- ДАШБОРД КОНТЕНТ --- */
+.page-header {
+    margin-bottom: 25px;
+    padding-left: 5px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    line-height: 1.2;
+    /* Исправил высоту строки */
+}
+
+.page-header p {
+    color: #a0aec0;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Карточки статистики */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.purple-bg {
+    background: #a66eff;
+}
+
+.orange-bg {
+    background: #ffa85c;
+}
+
+.blue-bg {
+    background: #4facfe;
+}
+
+.green-bg {
+    background: #65d641;
+}
+
+.stat-details h3 {
+    font-size: 13px;
+    color: #a0aec0;
+    margin-bottom: 5px;
+    font-weight: 500;
+    margin-top: 0;
+}
+
+.stat-details .number {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: #2d3748;
+    margin-top: 0;
+}
+
+.trend {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.positive {
+    color: #65d641;
+}
+
+.neutral {
+    color: #ffa85c;
+}
+
+/* Сетка графиков и таблиц */
+.charts-section {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr;
+    gap: 25px;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 25px;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ГРАФИК */
+.chart-visual {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+
+.bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.bar {
+    width: 14px;
+    border-radius: 10px;
+    transition: height 0.5s ease;
+    opacity: 0.8;
+}
+
+.bar:hover {
+    opacity: 1;
+    transform: scaleX(1.1);
+}
+
+/* Цвета для столбиков */
+.bar-group:nth-child(1) .bar {
+    background: #a66eff;
+}
+
+.bar-group:nth-child(2) .bar {
+    background: #ffa85c;
+}
+
+.bar-group:nth-child(3) .bar {
+    background: #4facfe;
+}
+
+.bar-group:nth-child(4) .bar {
+    background: #65d641;
+}
+
+.bar-group:nth-child(5) .bar {
+    background: #ff6b6b;
+}
+
+.bar-group:nth-child(6) .bar {
+    background: #facc15;
+}
+
+.bar-group:nth-child(7) .bar {
+    background: #3b82f6;
+}
+
+.bar-group span {
+    font-size: 12px;
+    color: #a0aec0;
+}
+
+/* Таблица */
+.link-view {
+    font-size: 12px;
+    color: #7B61FF;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mini-table th {
+    text-align: left;
+    font-size: 12px;
+    color: #a0aec0;
+    padding-bottom: 15px;
+    font-weight: 500;
+}
+
+.mini-table td {
+    padding: 15px 0;
+    border-bottom: 1px solid #f7fafc;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    background: #dbeafe;
+    color: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.color-2 {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.color-3 {
+    background: #fce7f3;
+    color: #db2777;
+}
+
+.status-tag {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.process {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    cursor: pointer;
+    color: rgba(71, 85, 105, 0.95);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    transform: translateY(-1px);
+    border-color: rgba(79, 172, 254, 0.35);
+    box-shadow: var(--shadow-md);
+}
+
+/* Адаптив */
+@media (max-width: 1024px) {
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        left: -100%;
+        /* Скрываем меню полностью на мобильном */
+        width: 290px;
+    }
+
+    .sidebar.close {
+        left: 0;
+        /* Показываем при нажатии */
+        width: 290px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .toggle-btn {
+        display: none;
+        /* На мобильном стрелка не нужна, там нужен гамбургер */
+    }
+
+    .mobile-menu-btn {
+        display: inline-flex;
+    }
+
+    .search-box {
+        width: 100%;
+        order: 20;
+        margin-top: 8px;
+    }
+
+    .top-profile {
+        gap: 14px;
+    }
+}
+
+/* =========================================
+   ИСПРАВЛЕНИЯ ДЛЯ СТРАНИЦЫ ЗАЯВОК (ADMINCUST)
+   ========================================= */
+
+/* 1. ЖЕСТКОЕ ИСПРАВЛЕНИЕ ШАПКИ */
+.top-bar {
+    display: flex !important;
+    /* Принудительно флекс */
+    justify-content: space-between !important;
+    /* Разносим по краям */
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0 10px;
+    /* Небольшой отступ от краев */
+    margin-bottom: 30px;
+}
+
+.search-box {
+    margin-right: auto;
+    /* Толкает все остальное вправо */
+}
+
+.top-profile {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-left: auto;
+    /* Прижимает профиль к правому краю */
+}
+
+/* 2. СТИЛИ ДЛЯ КНОПОК ФИЛЬТРОВ */
+.filter-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.filter-btn {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 10px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(79, 172, 254, 0.35);
+    box-shadow: var(--shadow-md);
+}
+
+.filter-btn.active {
+    background: #22c55e;
+    background: var(--brand-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 14px 32px rgba(123, 97, 255, 0.22);
+}
+
+.filter-btn .counter {
+    background: rgba(255, 255, 255, 0.22);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.filter-btn:not(.active) .counter {
+    background: rgba(148, 163, 184, 0.22);
+    color: var(--color-muted);
+}
+
+/* 3. ТАБЛИЦА */
+.full-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.full-table th {
+    text-align: left;
+    padding: 15px 20px;
+    color: #a0aec0;
+    font-weight: 500;
+    font-size: 13px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.full-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f8f9fe;
+    vertical-align: middle;
+}
+
+/* 4. СТАТУСЫ (ЦВЕТА) */
+.status-tag {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-tag.success {
+    background: #def7ec;
+    color: #03543f;
+}
+
+/* Зеленый */
+.status-tag.danger {
+    background: #fde8e8;
+    color: #9b1c1c;
+}
+
+/* Красный */
+.status-tag.pending {
+    background: #fff8f1;
+    color: #9c4221;
+}
+
+/* Оранжевый */
+/* --- НОВЫЕ СТИЛИ (adminvolon.html) --- */
+
+/* 1. ПОДНИМАЕМ ШАПКУ ВЫШЕ */
+.main-content {
+    /* Если было 30px, уменьшим верхний отступ, чтобы шапка поднялась */
+    padding-top: 15px !important;
+}
+
+.top-bar.compact-header {
+    margin-bottom: 30px;
+    /* Отступ снизу до заголовка "Задачи..." */
+    /* Убираем лишние внешние отступы сверху, если они были */
+    margin-top: 0 !important;
+}
+
+/* 2. СТИЛИ ДЛЯ РЕЙТИНГА (Звездочки) */
+.rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rating-badge i {
+    font-size: 11px;
+}
+
+/* Цвета рейтинга */
+.rating-badge.perfect {
+    /* 5.0 */
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fcd34d;
+}
+
+.rating-badge.high {
+    /* 4.8 - 4.9 */
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.rating-badge.good {
+    /* 4.5 */
+    background: #fdf2f8;
+    color: #db2777;
+    border: 1px solid #fbcfe8;
+}
+
+/* 3. УЛУЧШЕНИЕ ТАБЛИЦЫ */
+.full-table td {
+    vertical-align: middle;
+    /* Чтобы все стояло ровно по центру строки */
+}
+
+/* --- СТИЛИ ДЛЯ АНАЛИТИКИ (adminanalys.html) --- */
+
+/* 1. СЕТКА (GRID LAYOUT) */
+.analytics-grid-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Две равные колонки */
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.analytics-grid-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    /* Три равные колонки */
+    gap: 25px;
+}
+
+/* На мобильных всё в 1 колонку */
+@media (max-width: 1024px) {
+
+    .analytics-grid-top,
+    .analytics-grid-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 2. ОБЩИЕ СТИЛИ КАРТОЧЕК */
+.chart-box {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-header-clean {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.card-header-clean h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.big-number {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 5px;
+    color: #2d3748;
+}
+
+.big-number.small {
+    font-size: 20px;
+}
+
+.chart-period {
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* 3. СТОЛБЧАТЫЙ ГРАФИК (BAR CHART) */
+.bar-chart-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 120px;
+    padding-top: 20px;
+}
+
+.simple-bar {
+    width: 12%;
+    background: #e2e8f0;
+    /* Серый по умолчанию */
+    border-radius: 6px;
+    position: relative;
+    transition: height 0.5s ease;
+}
+
+.simple-bar:hover,
+.simple-bar.active {
+    background: #7B61FF;
+    /* Фиолетовый активный */
+}
+
+.simple-bar span {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #a0aec0;
+}
+
+/* 4. ЛИНЕЙНЫЙ ГРАФИК (SVG) */
+.line-chart-container {
+    height: 100px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.line-chart-container svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 5. ИСТОЧНИКИ (ПРОГРЕСС БАРЫ) */
+.traffic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.t-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #4a5568;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.fill.purple {
+    background: #7B61FF;
+}
+
+.fill.yellow {
+    background: #FCD34D;
+}
+
+.fill.blue {
+    background: #4FACFE;
+}
+
+/* 6. ПОНЧИК (DONUT CHART) */
+.donut-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.donut-chart {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* CSS градиент для создания круговой диаграммы */
+    background: conic-gradient(#7B61FF 0% 50%,
+            #FCD34D 50% 85%,
+            #4FACFE 85% 100%);
+}
+
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background: white;
+    border-radius: 50%;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.donut-legend {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.legend-item {
+    font-size: 11px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: block;
+}
+
+.dot.p {
+    background: #7B61FF;
+}
+
+.dot.y {
+    background: #FCD34D;
+}
+
+.dot.b {
+    background: #4FACFE;
+}
+
+/* --- SPLIT VIEW (ЗАЯВКИ + ЧАТ) --- */
+
+/* Отключаем скролл у body, чтобы скроллились только панели */
+.main-content.no-scroll {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-title-box h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.page-title-box p {
+    margin: 0;
+    font-size: 13px;
+    color: #a0aec0;
+}
+
+.split-container {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+    padding-bottom: 20px;
+    /* Отступ снизу */
+    overflow: hidden;
+}
+
+/* ЛЕВАЯ ПАНЕЛЬ (СПИСОК) */
+.candidates-list-panel {
+    width: 350px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #edf2f7;
+}
+
+.list-search {
+    padding: 20px;
+    border-bottom: 1px solid #f7fafc;
+    position: relative;
+}
+
+.list-search input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    outline: none;
+    font-family: 'Poppins';
+}
+
+.list-search i {
+    position: absolute;
+    left: 32px;
+    top: 32px;
+    color: #cbd5e0;
+}
+
+.candidates-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* Карточка кандидата */
+.candidate-card {
+    padding: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    margin-bottom: 5px;
+}
+
+.candidate-card:hover {
+    background: #f8f9fe;
+}
+
+.candidate-card.active {
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.card-info h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.card-info span {
+    font-size: 11px;
+    color: #718096;
+}
+
+.time-badge {
+    margin-left: auto;
+    font-size: 10px;
+    color: #a0aec0;
+}
+
+.card-msg-preview {
+    font-size: 12px;
+    color: #718096;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* ПРАВАЯ ПАНЕЛЬ (ЧАТ) */
+.chat-main-panel {
+    flex: 1;
+    /* Занимает все оставшееся место */
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #edf2f7;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-main-header {
+    padding: 20px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+
+.chat-user-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-circle.lg {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+}
+
+.user-meta h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.user-meta p {
+    margin: 0;
+    font-size: 12px;
+    color: #718096;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.action-btn.accept {
+    background: var(--color-success-bg);
+    color: #065f46;
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+.action-btn.accept:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn.reject {
+    background: rgba(239, 68, 68, 0.12);
+    color: #991b1b;
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.action-btn.reject:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Сообщения */
+.chat-messages-area {
+    flex: 1;
+    background: #f8f9fe;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.system-date {
+    text-align: center;
+    font-size: 11px;
+    color: #cbd5e0;
+    margin: 10px 0;
+}
+
+.msg-row {
+    display: flex;
+    width: 100%;
+}
+
+.msg-row.received {
+    justify-content: flex-start;
+}
+
+.msg-row.sent {
+    justify-content: flex-end;
+}
+
+.bubble {
+    max-width: 60%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.msg-row.received .bubble {
+    background: white;
+    color: #2d3748;
+    border-bottom-left-radius: 2px;
+}
+
+.msg-row.sent .bubble {
+    background: #7B61FF;
+    color: white;
+    border-bottom-right-radius: 2px;
+}
+
+.bubble .time {
+    font-size: 10px;
+    display: block;
+    margin-top: 5px;
+    text-align: right;
+    opacity: 0.7;
+}
+
+/* Ввод текста */
+.chat-input-area {
+    padding: 20px;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    outline: none;
+    font-family: var(--font-main);
+}
+
+.chat-input-area input:focus {
+    background: #fff;
+    border-color: rgba(123, 97, 255, 0.45);
+    box-shadow: var(--focus-ring);
+}
+
+.attach-btn,
+.send-btn-main {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(100, 116, 139, 0.9);
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.send-btn-main {
+    background: var(--brand-gradient);
+    color: white;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-btn-main:hover {
+    transform: scale(1.05);
+}

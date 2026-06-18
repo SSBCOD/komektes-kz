@@ -1,0 +1,231 @@
+{% load static %}
+    {% load ui_lang %}
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% t "Талдау" "Аналитика" %} — Komektes.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2026051602">
+    <link rel="stylesheet" href="{% static 'admin.css' %}?v=2026051602">
+</head>
+
+<body>
+
+    <div class="admin-wrapper">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="{% static 'image/PFMxhxh0Vuqgu-fLjA1HQ-fotor-bg-remover-2026021025732.png' %}" alt="Logo"
+                        class="logo-img">
+                    <h2 class="logo-text">Komektes.kz</h2>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <p class="menu-label">{% t "Мәзір" "Меню" %}</p>
+                <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="link-text">{% t "Басты бет" "Главная" %}</span>
+                </a>
+                <a href="{% url 'admin_clients' %}" class="menu-item">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span class="link-text">{% t "Клиент өтінімдері" "Заявки клиентов" %}</span>
+                    <span class="badge">{{ pending_requests|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_volunteers' %}" class="menu-item">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="link-text">{% t "Ерікті болуға өтінімдер" "Заявки в волонтёры" %}</span>
+                    <span class="badge" style="background: #7B61FF;">{{ pending_volunteers|default:"0" }}</span>
+                </a>
+                <a href="{% url 'admin_tasks' %}" class="menu-item">
+                    <i class="fas fa-tasks"></i>
+                    <span class="link-text">{% t "Еріктілер тапсырмалары" "Задачи волонтёров" %}</span>
+                </a>
+                <a href="{% url 'admin_analytics' %}" class="menu-item active">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="link-text">{% t "Талдау" "Аналитика" %}</span>
+                </a>
+
+                <a href="{% url 'admin_news' %}" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span class="link-text">{% t "Жаңалықтар" "Новости" %}</span>
+                </a>
+                <a href="{% url 'admin_users' %}" class="menu-item">
+                    <i class="fas fa-users-cog"></i>
+                    <span class="link-text">{% t "Пайдаланушылар" "Пользователи" %}</span>
+                </a>
+                <div class="spacer"></div>
+                <a href="{% url 'logout' %}" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">{% t "Шығу" "Выйти" %}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+
+            <header class="top-bar compact-header">
+                <button type="button" class="mobile-menu-btn" onclick="document.getElementById('toggleBtn').click(); return false;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="{% t 'Деректерді іздеу...' 'Поиск данных...' %}">
+                </div>
+                <form method="POST" action="{% url 'set_ui_language' %}" class="lang-switch" style="margin-left:auto; margin-right: 14px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" name="lang" value="kk" class="lang-btn{% if request.COOKIES.ui_lang|default:'kk' == 'kk' %} is-active{% endif %}">KZ</button>
+                    <button type="submit" name="lang" value="ru" class="lang-btn{% if request.COOKIES.ui_lang == 'ru' %} is-active{% endif %}">RU</button>
+                </form>
+                <div class="top-profile">
+                    <div class="profile-info">
+                        <div class="admin-avatar">{{ user.get_full_name|default:user.username|make_list|first|upper }}</div>
+                        <div class="text">
+                            <h4>{{ user.get_full_name|default:user.username }}</h4>
+                            <p>{{ user.get_role_display|default:"Модератор" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h1>{% t "Платформа талдауы" "Аналитика платформы" %}</h1>
+                    <p>{% t "Жинақтар және пайдаланушы белсенділігі статистикасы" "Сводки и статистика активности пользователей" %}</p>
+                </div>
+
+                <div class="analytics-grid-top">
+
+                    <div class="dashboard-card chart-box">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3>{% t "Көмек өтінімдері" "Заявки на помощь" %}</h3>
+                                <div class="big-number">{{ total_requests|default:"0" }}</div>
+                                <div class="trend positive">{% t "Күтуде:" "В ожидании:" %} {{ pending_requests|default:"0" }} • {% t "Орындалды:" "Выполнено:" %} {{ completed_requests|default:"0" }} • {% t "Бас тартылды:" "Отклонено:" %} {{ rejected_requests|default:"0" }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-box">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3>{% t "Пайдаланушылар" "Пользователи" %}</h3>
+                                <div class="big-number">{{ total_users|default:"0" }}</div>
+                                <div class="trend positive">{% t "Клиент:" "Клиент:" %} {{ total_clients|default:"0" }} • {% t "Ерікті:" "Волонтер:" %} {{ total_volunteers|default:"0" }} • {% t "Әкімші:" "Администратор:" %} {{ total_admins|default:"0" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-grid-bottom">
+
+                    <div class="dashboard-card chart-box">
+                        <h3>{% t "Өтінім мәртебелері" "Статусы заявок" %}</h3>
+                        <div class="traffic-list">
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Күтуде" "В ожидании" %}</span> <span>{{ pending_requests_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill purple" style="width: {{ pending_requests_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Орындалды" "Выполнено" %}</span> <span>{{ completed_requests_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill yellow" style="width: {{ completed_requests_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Бас тартылды" "Отклонено" %}</span> <span>{{ rejected_requests_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill blue" style="width: {{ rejected_requests_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-box">
+                        <div class="card-header-clean">
+                            <h3>{% t "Пайдаланушылар" "Пользователи" %}</h3>
+                            <i class="fas fa-ellipsis-h" style="color:#ccc"></i>
+                        </div>
+                        <div class="big-number small">{{ total_users|default:"0" }}</div>
+                        <div class="line-chart-container">
+                            <svg viewBox="0 0 300 100" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#7B61FF;stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:#7B61FF;stop-opacity:0" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M0,70 C50,80 100,20 150,50 S250,80 300,10 V100 H0 Z" fill="url(#grad1)" />
+                                <path d="M0,70 C50,80 100,20 150,50 S250,80 300,10" fill="none" stroke="#7B61FF"
+                                    stroke-width="2" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card chart-box">
+                        <div class="card-header-clean">
+                            <h3>{% t "Рөлдер" "Роли" %}</h3>
+                            <i class="fas fa-ellipsis-h" style="color:#ccc"></i>
+                        </div>
+                        <div class="traffic-list" style="margin-top: 12px;">
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Клиент" "Клиент" %}</span> <span>{{ clients_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill purple" style="width: {{ clients_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Ерікті" "Волонтер" %}</span> <span>{{ volunteers_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill yellow" style="width: {{ volunteers_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                            <div class="traffic-item">
+                                <div class="t-label"><span>{% t "Әкімші" "Администратор" %}</span> <span>{{ admins_pct|default:"0" }}%</span></div>
+                                <div class="progress-bar">
+                                    <div class="fill blue" style="width: {{ admins_pct|default:'0' }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('close');
+            mainContent.classList.toggle('active');
+            if (sidebar.classList.contains('close')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+    </script>
+</body>
+
+</html>
